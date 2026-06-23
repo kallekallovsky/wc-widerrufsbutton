@@ -60,10 +60,11 @@ final class Plugin {
 
 		// Komponenten laden.
 		new Frontend();
+		new Ajax();
 
 		/**
 		 * Einstiegspunkt für weitere Komponenten
-		 * (AJAX, E-Mails, Bestelllogik, Admin, Settings).
+		 * (E-Mails, Bestelllogik, Admin, Settings).
 		 */
 		do_action( 'wdbtn_init', $this );
 	}
