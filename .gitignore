@@ -1,0 +1,28 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# PHP / Composer
+/vendor/
+composer.lock
+
+# Node / Build
+/node_modules/
+npm-debug.log*
+/build/
+/dist/
+
+# WordPress / lokale Umgebung
+wp-cli.local.yml
+*.log
+
+# Übersetzungen (kompiliert)
+languages/*.mo
+
+# Sonstiges
+*.zip
+.env
