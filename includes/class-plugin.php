@@ -58,9 +58,12 @@ final class Plugin {
 		// Phase-2-Erweiterungsstelle: austauschbar per Filter, Default = No-op.
 		$this->notifier = apply_filters( 'wdbtn_notifier', new Null_Notifier() );
 
+		// Komponenten laden.
+		new Frontend();
+
 		/**
-		 * Einstiegspunkt für spätere Komponenten
-		 * (Frontend, AJAX, E-Mails, Bestelllogik, Admin, Settings).
+		 * Einstiegspunkt für weitere Komponenten
+		 * (AJAX, E-Mails, Bestelllogik, Admin, Settings).
 		 */
 		do_action( 'wdbtn_init', $this );
 	}

@@ -1,0 +1,306 @@
+/* Widerrufsbutton für WooCommerce – Frontend-Styles */
+
+:root {
+	--wdbtn-accent: #b32d2e;
+	--wdbtn-accent-hover: #8f2425;
+	--wdbtn-text-on-accent: #ffffff;
+	--wdbtn-modal-bg: #ffffff;
+	--wdbtn-modal-text: #1d2327;
+	--wdbtn-border: #c3c4c7;
+	--wdbtn-hint: #646970;
+	--wdbtn-radius: 8px;
+}
+
+/* ---------- Trigger-Button ---------- */
+.wdbtn-trigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: .5em;
+	padding: 12px 20px;
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 1.2;
+	color: var(--wdbtn-text-on-accent);
+	background: var(--wdbtn-accent);
+	border: none;
+	border-radius: var(--wdbtn-radius);
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+	transition: background-color .15s ease, transform .05s ease;
+}
+
+.wdbtn-trigger:hover,
+.wdbtn-trigger:focus-visible {
+	background: var(--wdbtn-accent-hover);
+}
+
+.wdbtn-trigger:focus-visible {
+	outline: 3px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.wdbtn-trigger:active {
+	transform: translateY(1px);
+}
+
+/* Sticky-Positionen */
+.wdbtn-sticky {
+	position: fixed;
+	bottom: 20px;
+	z-index: 99990;
+}
+
+.wdbtn-pos-bottom-right {
+	right: 20px;
+}
+
+.wdbtn-pos-bottom-left {
+	left: 20px;
+}
+
+.wdbtn-pos-bottom-center {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.wdbtn-pos-bottom-center:active {
+	transform: translateX(-50%) translateY(1px);
+}
+
+/* ---------- Overlay & Modal ---------- */
+.wdbtn-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	background: rgba(0, 0, 0, .55);
+	-webkit-backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
+	overflow-y: auto;
+}
+
+.wdbtn-overlay[hidden] {
+	display: none;
+}
+
+.wdbtn-modal {
+	position: relative;
+	width: 100%;
+	max-width: 520px;
+	max-height: 90vh;
+	overflow-y: auto;
+	background: var(--wdbtn-modal-bg);
+	color: var(--wdbtn-modal-text);
+	border-radius: var(--wdbtn-radius);
+	box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
+	padding: 28px 28px 24px;
+	box-sizing: border-box;
+}
+
+.wdbtn-close {
+	position: absolute;
+	top: 10px;
+	right: 12px;
+	width: 36px;
+	height: 36px;
+	font-size: 24px;
+	line-height: 1;
+	color: var(--wdbtn-hint);
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.wdbtn-close:hover,
+.wdbtn-close:focus-visible {
+	background: rgba(0, 0, 0, .07);
+	color: var(--wdbtn-modal-text);
+}
+
+.wdbtn-title {
+	margin: 0 30px 6px 0;
+	font-size: 22px;
+}
+
+.wdbtn-intro {
+	margin: 0 0 18px;
+	color: var(--wdbtn-hint);
+	font-size: 14px;
+}
+
+/* ---------- Felder ---------- */
+.wdbtn-field {
+	margin-bottom: 16px;
+}
+
+.wdbtn-field label {
+	display: block;
+	margin-bottom: 5px;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.wdbtn-field input,
+.wdbtn-field select,
+.wdbtn-field textarea {
+	width: 100%;
+	padding: 10px 12px;
+	font-size: 15px;
+	color: var(--wdbtn-modal-text);
+	border: 1px solid var(--wdbtn-border);
+	border-radius: 6px;
+	box-sizing: border-box;
+	background: #fff;
+}
+
+.wdbtn-field input:focus,
+.wdbtn-field select:focus,
+.wdbtn-field textarea:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 1px;
+	border-color: #2271b1;
+}
+
+.wdbtn-field input[readonly] {
+	background: #f0f0f1;
+}
+
+.wdbtn-hint {
+	margin: 5px 0 0;
+	font-size: 12px;
+	color: var(--wdbtn-hint);
+}
+
+.wdbtn-req {
+	color: var(--wdbtn-accent);
+}
+
+.wdbtn-optional {
+	font-weight: 400;
+	color: var(--wdbtn-hint);
+	font-size: 13px;
+}
+
+/* ---------- Aktionen / Buttons ---------- */
+.wdbtn-actions {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+	margin-top: 20px;
+}
+
+.wdbtn-btn {
+	padding: 11px 18px;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--wdbtn-text-on-accent);
+	background: var(--wdbtn-accent);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.wdbtn-btn:hover,
+.wdbtn-btn:focus-visible {
+	background: var(--wdbtn-accent-hover);
+}
+
+.wdbtn-btn:focus-visible {
+	outline: 3px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.wdbtn-btn[disabled] {
+	opacity: .6;
+	cursor: default;
+}
+
+.wdbtn-secondary {
+	color: var(--wdbtn-modal-text);
+	background: #f0f0f1;
+}
+
+.wdbtn-secondary:hover,
+.wdbtn-secondary:focus-visible {
+	background: #e0e0e1;
+}
+
+/* ---------- Meldungen / Zusammenfassung ---------- */
+.wdbtn-message {
+	margin: 12px 0 0;
+	padding: 10px 12px;
+	font-size: 14px;
+	border-radius: 6px;
+	background: #fcf0f1;
+	color: #8f2425;
+	border: 1px solid #f0c5c7;
+}
+
+.wdbtn-summary {
+	margin: 16px 0;
+	padding: 14px 16px;
+	background: #f6f7f7;
+	border: 1px solid var(--wdbtn-border);
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+.wdbtn-summary dl {
+	margin: 0;
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 4px 14px;
+}
+
+.wdbtn-summary dt {
+	font-weight: 600;
+	color: var(--wdbtn-hint);
+}
+
+.wdbtn-summary dd {
+	margin: 0;
+}
+
+.wdbtn-success h3 {
+	margin: 0 0 8px;
+	color: #1a7f37;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+	.wdbtn-modal {
+		padding: 22px 18px 18px;
+	}
+
+	.wdbtn-actions {
+		flex-direction: column-reverse;
+	}
+
+	.wdbtn-btn {
+		width: 100%;
+	}
+
+	.wdbtn-pos-bottom-center,
+	.wdbtn-pos-bottom-right,
+	.wdbtn-pos-bottom-left {
+		left: 12px;
+		right: 12px;
+		transform: none;
+	}
+
+	.wdbtn-pos-bottom-center:active {
+		transform: translateY(1px);
+	}
+}
+
+/* Reduzierte Bewegung respektieren */
+@media (prefers-reduced-motion: reduce) {
+	.wdbtn-trigger {
+		transition: none;
+	}
+}
