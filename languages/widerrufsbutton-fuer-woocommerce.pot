@@ -1,0 +1,710 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Widerrufsbutton fuer WooCommerce 0.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de_DE\n"
+"X-Domain: widerrufsbutton-fuer-woocommerce\n"
+
+#: includes/class-settings-page.php:216
+msgid "0 = keine Vorauswahl-Begrenzung. Das Plugin blockiert Widerrufe nicht hart."
+msgstr ""
+
+#: includes/class-admin.php:49
+msgid "Abgelehnt"
+msgstr ""
+
+#: includes/class-settings-page.php:189
+msgid "Ablauf & Benachrichtigung"
+msgstr ""
+
+#: includes/class-settings-page.php:132
+msgid "Abschluss-/Lieferdatum (mit Rückfall auf Bestelldatum)"
+msgstr ""
+
+#: includes/class-settings-page.php:196
+msgid "Additive Bestellnotiz an die WooCommerce-Bestellung anhängen (kein Statuswechsel)"
+msgstr ""
+
+#: includes/class-admin.php:290
+msgid "Akteur"
+msgstr ""
+
+#: includes/class-admin.php:291
+msgid "Aktion"
+msgstr ""
+
+#: includes/class-list-table.php:183
+msgid "Alle Status"
+msgstr ""
+
+#: templates/modal.php:60
+msgid "An diese Adresse senden wir die Eingangsbestätigung."
+msgstr ""
+
+#: includes/class-emails.php:66
+msgid "Anmerkung:"
+msgstr ""
+
+#: includes/class-settings-page.php:156
+msgid "Anzeige"
+msgstr ""
+
+#: includes/class-admin.php:192 includes/class-ajax.php:323 includes/class-list-table.php:147 templates/emails/confirmation-customer.php:66 templates/emails/notification-admin.php:83
+msgid "Artikel"
+msgstr ""
+
+#: includes/class-admin.php:233
+msgid "Artikel (SKU)"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:41 templates/emails/notification-admin.php:45
+msgid "Artikel:"
+msgstr ""
+
+#: includes/class-emails.php:189
+msgid "Artikel: %s"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:26 templates/emails/notification-admin.php:29
+msgid "Artikelbezogener Widerruf"
+msgstr ""
+
+#: templates/modal.php:66
+msgid "Artikelnummer (optional)"
+msgstr ""
+
+#: includes/class-settings-page.php:177
+msgid "Auf Produktseiten Artikelnummer vorausfüllen"
+msgstr ""
+
+#: includes/class-settings-page.php:197
+msgid "Bei Ablehnung eine Mitteilung an die Kund:in senden"
+msgstr ""
+
+#: includes/class-emails.php:69
+msgid "Bei Rückfragen können Sie sich jederzeit an uns wenden. Ihre gesetzlichen Rechte bleiben unberührt."
+msgstr ""
+
+#: includes/class-admin.php:258
+msgid "Bei Status „Abgelehnt\" wird diese Notiz – sofern aktiviert – dem Kunden per E-Mail mitgeteilt."
+msgstr ""
+
+#: includes/class-settings-page.php:272
+msgid "Beim Löschen des Plugins alle Daten (Tabellen + Einstellungen) entfernen"
+msgstr ""
+
+#: includes/class-settings-page.php:220
+msgid "Berechnungsbasis"
+msgstr ""
+
+#: includes/class-settings-page.php:131
+msgid "Bestelldatum"
+msgstr ""
+
+#: includes/class-admin.php:224 includes/class-list-table.php:44 templates/emails/confirmation-customer.php:61 templates/emails/notification-admin.php:71 templates/modal.php:54
+msgid "Bestellnummer"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:39 templates/emails/notification-admin.php:43
+msgid "Bestellnummer:"
+msgstr ""
+
+#: includes/class-emails.php:187
+msgid "Bestellnummer: %s"
+msgstr ""
+
+#: includes/class-list-table.php:148
+msgid "Bestellung"
+msgstr ""
+
+#: includes/class-orders.php:137
+msgid "Bestellung #%1$s vom %2$s"
+msgstr ""
+
+#: templates/modal.php:40
+msgid "Bestellung auswählen"
+msgstr ""
+
+#: includes/class-admin.php:228 templates/emails/notification-admin.php:76
+msgid "Bestellung öffnen"
+msgstr ""
+
+#: includes/class-admin.php:48
+msgid "Bestätigt"
+msgstr ""
+
+#: includes/class-settings-page.php:227
+msgid "Bewusst datumsbasiert – nicht anhand des WooCommerce-Status (Warenwirtschaft kann den Status umschreiben)."
+msgstr ""
+
+#: includes/class-list-table.php:189
+msgid "Bis"
+msgstr ""
+
+#: includes/class-frontend.php:108
+msgid "Bitte bestätigen Sie Ihre E-Mail"
+msgstr ""
+
+#: includes/class-emails.php:141
+msgid "Bitte bestätigen Sie Ihren Widerruf bei %s"
+msgstr ""
+
+#: templates/modal.php:92
+msgid "Bitte bestätigen Sie Ihren Widerruf verbindlich. Nach dem Absenden erhalten Sie eine Eingangsbestätigung per E-Mail."
+msgstr ""
+
+#: includes/class-emails.php:153
+msgid "Bitte bestätigen Sie Ihren Widerruf über den folgenden Link:"
+msgstr ""
+
+#: includes/class-ajax.php:98
+msgid "Bitte füllen Sie die Pflichtfelder aus (Name, Bestellnummer, E-Mail)."
+msgstr ""
+
+#: includes/class-frontend.php:105
+msgid "Bitte füllen Sie die Pflichtfelder aus."
+msgstr ""
+
+#: includes/class-ajax.php:104 includes/class-frontend.php:106
+msgid "Bitte geben Sie eine gültige E-Mail-Adresse an."
+msgstr ""
+
+#: includes/class-settings-page.php:159
+msgid "Button-Text"
+msgstr ""
+
+#: includes/class-admin.php:129
+msgid "CSV-Export"
+msgstr ""
+
+#: includes/class-frontend.php:104
+msgid "Das Absenden ist noch nicht verfügbar."
+msgstr ""
+
+#: includes/class-settings-page.php:268
+msgid "Datenschutz"
+msgstr ""
+
+#: includes/class-list-table.php:43
+msgid "Datum/Uhrzeit"
+msgstr ""
+
+#: includes/class-settings-page.php:271
+msgid "Deinstallation"
+msgstr ""
+
+#: includes/class-emails.php:157
+msgid "Der Link ist 24 Stunden gültig. Erst nach Bestätigung gilt Ihr Widerruf als eingegangen und Sie erhalten eine Eingangsbestätigung."
+msgstr ""
+
+#: includes/class-ajax.php:182 includes/class-ajax.php:213
+msgid "Der Widerruf konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+msgstr ""
+
+#: templates/modal.php:77
+msgid "Die Angabe eines Grundes ist freiwillig und keine Voraussetzung für den Widerruf."
+msgstr ""
+
+#: includes/class-ajax.php:255
+msgid "Dieser Bestätigungslink ist abgelaufen. Bitte starten Sie den Widerruf erneut."
+msgstr ""
+
+#: includes/class-ajax.php:244
+msgid "Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet."
+msgstr ""
+
+#: includes/class-admin.php:236 includes/class-list-table.php:46 templates/emails/confirmation-customer.php:75 templates/emails/notification-admin.php:92
+msgid "E-Mail"
+msgstr ""
+
+#: templates/modal.php:58
+msgid "E-Mail-Adresse"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:44 templates/emails/notification-admin.php:48
+msgid "E-Mail:"
+msgstr ""
+
+#: templates/modal.php:113
+msgid "Eine Eingangsbestätigung wurde an Ihre E-Mail-Adresse gesendet."
+msgstr ""
+
+#: includes/class-admin.php:238
+msgid "Eingangsbestätigung"
+msgstr ""
+
+#: includes/class-admin.php:46
+msgid "Eingegangen"
+msgstr ""
+
+#: includes/class-admin.php:221 templates/emails/confirmation-customer.php:79 templates/emails/notification-admin.php:96
+msgid "Eingegangen am"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:45 templates/emails/notification-admin.php:49
+msgid "Eingegangen am:"
+msgstr ""
+
+#: includes/class-emails.php:192
+msgid "Eingegangen am: %s"
+msgstr ""
+
+#: includes/class-settings-page.php:260
+msgid "Einzelne Produkte (IDs)"
+msgstr ""
+
+#: includes/class-settings-page.php:202
+msgid "Empfänger Betreiber-Mail"
+msgstr ""
+
+#: includes/class-admin.php:165
+msgid "Erledigt (30 Tage)"
+msgstr ""
+
+#: includes/class-frontend.php:103
+msgid "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+msgstr ""
+
+#: templates/emails/notification-admin.php:41 templates/emails/notification-admin.php:59
+msgid "Es ist ein neuer Widerruf eingegangen:"
+msgstr ""
+
+#: templates/modal.php:44
+msgid "Es werden nur Bestellungen angezeigt, für die ein Widerruf noch möglich ist."
+msgstr ""
+
+#: includes/class-settings-page.php:138
+msgid "Externe/Affiliate-Produkte"
+msgstr ""
+
+#: includes/class-emails.php:159
+msgid "Falls Sie diesen Widerruf nicht ausgelöst haben, ignorieren Sie diese E-Mail bitte."
+msgstr ""
+
+#: includes/class-ajax.php:202
+msgid "Fast geschafft: Wir haben Ihnen eine E-Mail mit einem Bestätigungslink gesendet. Bitte bestätigen Sie Ihren Widerruf darüber."
+msgstr ""
+
+#: includes/class-list-table.php:190
+msgid "Filtern"
+msgstr ""
+
+#: includes/class-settings-page.php:184
+msgid "Footer-Link-Text"
+msgstr ""
+
+#: includes/class-settings-page.php:210
+msgid "Fristlogik"
+msgstr ""
+
+#: templates/modal.php:45
+msgid "Für Ihr Konto wurden keine widerrufbaren Bestellungen gefunden."
+msgstr ""
+
+#: includes/class-ajax.php:165
+msgid "Für diese Bestellung liegt bereits ein Widerruf vor. Bei Fragen zum Status kontaktieren Sie uns bitte."
+msgstr ""
+
+#: includes/class-ajax.php:157
+msgid "Für diesen Artikel ist kein Online-Widerruf vorgesehen. Bitte kontaktieren Sie uns bei Fragen."
+msgstr ""
+
+#: includes/class-settings-page.php:195
+msgid "Gast-Widerrufe per E-Mail-Link bestätigen lassen (Anti-Missbrauch)"
+msgstr ""
+
+#: includes/class-admin.php:169
+msgid "Gesamt (30 Tage)"
+msgstr ""
+
+#: includes/class-admin.php:192
+msgid "Gesamte Bestellung"
+msgstr ""
+
+#: templates/modal.php:75
+msgid "Grund"
+msgstr ""
+
+#: includes/class-admin.php:237 templates/emails/notification-admin.php:101
+msgid "Grund (optional)"
+msgstr ""
+
+#: templates/emails/notification-admin.php:51
+msgid "Grund (optional):"
+msgstr ""
+
+#: includes/class-settings-page.php:137
+msgid "Gruppierte Produkte"
+msgstr ""
+
+#: includes/class-emails.php:146 includes/class-emails.php:183 includes/class-emails.php:57 templates/emails/confirmation-customer.php:36 templates/emails/confirmation-customer.php:52
+msgid "Hallo %s,"
+msgstr ""
+
+#: includes/class-settings-page.php:136
+msgid "Herunterladbare Produkte"
+msgstr ""
+
+#: templates/modal.php:31
+msgid "Hier können Sie einen online geschlossenen Vertrag widerrufen. Der Widerruf erfolgt in zwei Schritten."
+msgstr ""
+
+#: templates/emails/notification-admin.php:107 templates/emails/notification-admin.php:53
+msgid "Hinweis: Es erfolgte kein automatischer Statuswechsel und keine Rückerstattung."
+msgstr ""
+
+#: includes/class-emails.php:178
+msgid "Ihr Widerruf ist bei %s eingegangen"
+msgstr ""
+
+#: includes/class-email-customer-confirmation.php:49
+msgid "Ihr Widerruf ist bei {site_title} eingegangen"
+msgstr ""
+
+#: includes/class-ajax.php:224
+msgid "Ihr Widerruf ist eingegangen. Eine Eingangsbestätigung wird an Ihre E-Mail-Adresse gesendet."
+msgstr ""
+
+#: includes/class-settings-page.php:178
+msgid "Im Kundenkonto („Bestellungen\") einen Widerrufen-Button anzeigen"
+msgstr ""
+
+#: includes/class-admin.php:47
+msgid "In Bearbeitung"
+msgstr ""
+
+#: includes/class-emails.php:52
+msgid "Information zu Ihrem Widerruf bei %s"
+msgstr ""
+
+#: includes/class-admin.php:316 includes/class-admin.php:351
+msgid "Keine Berechtigung."
+msgstr ""
+
+#: includes/class-admin.php:282
+msgid "Keine Einträge."
+msgstr ""
+
+#: includes/class-settings-page.php:255
+msgid "Keine Produktkategorien vorhanden."
+msgstr ""
+
+#: includes/class-list-table.php:201
+msgid "Keine Widerrufe gefunden."
+msgstr ""
+
+#: includes/class-admin.php:235 includes/class-list-table.php:45
+msgid "Kunde"
+msgstr ""
+
+#: includes/class-settings-page.php:205
+msgid "Mehrere Adressen mit Komma trennen. Betreff und Texte der E-Mails passen Sie unter WooCommerce → Einstellungen → E-Mails an."
+msgstr ""
+
+#: includes/class-settings-page.php:246
+msgid "Nach Kategorie"
+msgstr ""
+
+#: includes/class-settings-page.php:235
+msgid "Nach Produkttyp"
+msgstr ""
+
+#: includes/class-list-table.php:181
+msgid "Nach Status filtern"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:71 templates/emails/notification-admin.php:88 templates/modal.php:50
+msgid "Name"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:43 templates/emails/notification-admin.php:47
+msgid "Name:"
+msgstr ""
+
+#: includes/class-emails.php:191
+msgid "Name: %s"
+msgstr ""
+
+#: includes/class-email-admin-notification.php:69
+msgid "Neuer Widerruf eingegangen"
+msgstr ""
+
+#: includes/class-admin.php:292
+msgid "Notiz"
+msgstr ""
+
+#: includes/class-admin.php:256
+msgid "Notiz / Ablehnungsgrund (optional)"
+msgstr ""
+
+#: includes/class-admin.php:161
+msgid "Offen (30 Tage)"
+msgstr ""
+
+#: includes/class-settings-page.php:192
+msgid "Optionen"
+msgstr ""
+
+#: includes/class-settings-page.php:163
+msgid "Position"
+msgstr ""
+
+#: includes/class-settings-page.php:232
+msgid "Produkt-Ausschlüsse"
+msgstr ""
+
+#: includes/class-settings-page.php:263
+msgid "Produkt-IDs mit Komma getrennt."
+msgstr ""
+
+#: templates/modal.php:117 templates/modal.php:25
+msgid "Schließen"
+msgstr ""
+
+#: includes/class-ajax.php:58
+msgid "Sicherheitsprüfung fehlgeschlagen. Bitte laden Sie die Seite neu."
+msgstr ""
+
+#: includes/class-settings-page.php:173
+msgid "Sichtbarkeit"
+msgstr ""
+
+#: includes/class-admin.php:89 includes/class-settings-page.php:120
+msgid "Sie haben keine Berechtigung für diese Seite."
+msgstr ""
+
+#: templates/modal.php:68
+msgid "Sie widerrufen bezogen auf diesen Artikel. Der Artikel wird intern Ihrer Bestellung zugeordnet."
+msgstr ""
+
+#: includes/class-list-table.php:48
+msgid "Status"
+msgstr ""
+
+#: includes/class-admin.php:215
+msgid "Status aktualisiert."
+msgstr ""
+
+#: includes/class-admin.php:260
+msgid "Status speichern"
+msgstr ""
+
+#: includes/class-admin.php:243
+msgid "Status ändern"
+msgstr ""
+
+#: includes/class-settings-page.php:176
+msgid "Sticky-Button auf allen Shop-Seiten anzeigen"
+msgstr ""
+
+#: includes/class-admin.php:137
+msgid "Suche (Bestellnummer/E-Mail)"
+msgstr ""
+
+#: includes/class-admin.php:222 includes/class-list-table.php:47 templates/emails/confirmation-customer.php:57 templates/emails/notification-admin.php:67
+msgid "Umfang"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:38 templates/emails/notification-admin.php:42
+msgid "Umfang:"
+msgstr ""
+
+#: includes/class-settings-page.php:127
+msgid "Unten links"
+msgstr ""
+
+#: includes/class-settings-page.php:128
+msgid "Unten mittig"
+msgstr ""
+
+#: includes/class-settings-page.php:126
+msgid "Unten rechts"
+msgstr ""
+
+#: includes/class-admin.php:239
+msgid "Verifizierung"
+msgstr ""
+
+#: includes/class-admin.php:263
+msgid "Verlauf"
+msgstr ""
+
+#: includes/class-install.php:146 includes/class-install.php:147 templates/modal.php:28
+msgid "Vertrag widerrufen"
+msgstr ""
+
+#: templates/modal.php:112
+msgid "Vielen Dank"
+msgstr ""
+
+#: includes/class-ajax.php:274
+msgid "Vielen Dank. Ihr Widerruf wurde bestätigt. Eine Eingangsbestätigung wurde an Ihre E-Mail-Adresse gesendet."
+msgstr ""
+
+#: includes/class-settings-page.php:135
+msgid "Virtuelle Produkte"
+msgstr ""
+
+#: includes/class-list-table.php:188
+msgid "Von"
+msgstr ""
+
+#: templates/emails/notification-admin.php:63
+msgid "Vorgang"
+msgstr ""
+
+#: templates/modal.php:84
+msgid "Weiter"
+msgstr ""
+
+#: includes/class-admin.php:208
+msgid "Widerruf #%d"
+msgstr ""
+
+#: includes/class-ajax.php:245 includes/class-ajax.php:256
+msgid "Widerruf bestätigen"
+msgstr ""
+
+#: includes/class-ajax.php:275
+msgid "Widerruf bestätigt"
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:27 templates/emails/notification-admin.php:30
+msgid "Widerruf der gesamten Bestellung"
+msgstr ""
+
+#: includes/class-email-customer-confirmation.php:58
+msgid "Widerruf eingegangen"
+msgstr ""
+
+#: includes/class-ajax.php:321
+msgid "Widerruf eingegangen (Vorgang #%1$d, Umfang: %2$s). Dokumentiert im Plugin „Widerrufsbutton\". Kein automatischer Statuswechsel."
+msgstr ""
+
+#: includes/class-admin.php:185
+msgid "Widerruf nicht gefunden."
+msgstr ""
+
+#: templates/modal.php:104
+msgid "Widerruf verbindlich bestätigen"
+msgstr ""
+
+#: includes/class-email-admin-notification.php:28
+msgid "Widerruf – Benachrichtigung (Betreiber)"
+msgstr ""
+
+#: includes/class-email-customer-confirmation.php:29
+msgid "Widerruf – Eingangsbestätigung (Kunde)"
+msgstr ""
+
+#: includes/class-settings-page.php:151 includes/class-settings-page.php:39 includes/class-settings-page.php:40
+msgid "Widerruf-Einstellungen"
+msgstr ""
+
+#: includes/class-admin.php:128 includes/class-admin.php:61 includes/class-admin.php:62
+msgid "Widerrufe"
+msgstr ""
+
+#: includes/class-frontend.php:64
+msgid "Widerrufen"
+msgstr ""
+
+#: widerrufsbutton-fuer-woocommerce.php:99
+msgid "Widerrufsbutton für WooCommerce benötigt ein aktives WooCommerce."
+msgstr ""
+
+#: includes/class-settings-page.php:213
+msgid "Widerrufsfrist (Tage)"
+msgstr ""
+
+#: includes/class-emails.php:194
+msgid "Wir werden Ihren Widerruf zeitnah bearbeiten."
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:46 templates/emails/confirmation-customer.php:84
+msgid "Wir werden Ihren Widerruf zeitnah bearbeiten. Diese E-Mail dient als Eingangsbestätigung auf einem dauerhaften Datenträger."
+msgstr ""
+
+#: includes/class-frontend.php:107
+msgid "Wird gesendet …"
+msgstr ""
+
+#: includes/class-email-admin-notification.php:29
+msgid "Wird nach Eingang eines Widerrufs an den Shop-Betreiber gesendet."
+msgstr ""
+
+#: includes/class-email-customer-confirmation.php:30
+msgid "Wird nach Eingang eines Widerrufs automatisch an die Verbraucher:in gesendet (gesetzliche Pflicht)."
+msgstr ""
+
+#: includes/class-admin.php:289
+msgid "Zeitpunkt"
+msgstr ""
+
+#: includes/class-ajax.php:114
+msgid "Zu diesen Angaben wurde in diesem Shop keine Bestellung gefunden. Bitte prüfen Sie Bestellnummer und E-Mail-Adresse."
+msgstr ""
+
+#: includes/class-ajax.php:66
+msgid "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut."
+msgstr ""
+
+#: templates/modal.php:101
+msgid "Zurück"
+msgstr ""
+
+#: includes/class-settings-page.php:179
+msgid "Zusätzlichen Textlink im Footer anzeigen"
+msgstr ""
+
+#: includes/class-email-admin-notification.php:60
+msgid "[{site_title}] Neuer Widerruf eingegangen (#{withdrawal_id})"
+msgstr ""
+
+#: includes/class-emails.php:150
+msgid "für Ihren Widerruf zur Bestellung %s ist noch ein Bestätigungsschritt nötig."
+msgstr ""
+
+#: includes/class-ajax.php:323
+msgid "gesamte Bestellung"
+msgstr ""
+
+#: includes/class-admin.php:237
+msgid "keine Angabe"
+msgstr ""
+
+#: includes/class-admin.php:238
+msgid "nicht versendet"
+msgstr ""
+
+#: templates/modal.php:75
+msgid "optional"
+msgstr ""
+
+#: includes/class-admin.php:238
+msgid "versendet"
+msgstr ""
+
+#: includes/class-emails.php:185
+msgid "wir bestätigen den Eingang Ihres Widerrufs."
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:37 templates/emails/confirmation-customer.php:53
+msgid "wir bestätigen den Eingang Ihres Widerrufs. Inhalt Ihrer Widerrufserklärung:"
+msgstr ""
+
+#: includes/class-emails.php:61
+msgid "zu Ihrem Widerruf für die Bestellung %s haben wir eine Rückmeldung für Sie."
+msgstr ""
+
+#: templates/modal.php:42
+msgid "– Bitte wählen –"
+msgstr ""
+
+#: includes/class-admin.php:211
+msgid "← Zurück zur Liste"
+msgstr ""
+

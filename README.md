@@ -1,36 +1,106 @@
 # Widerrufsbutton für WooCommerce
 
 WordPress-Plugin, das die seit dem **19. Juni 2026** geltende gesetzliche Widerrufsfunktion
-(EU-Richtlinie 2023/2673, in Deutschland § 356a BGB) für WooCommerce-Shops rechtskonform umsetzt.
+(EU-Richtlinie 2023/2673, in Deutschland § 356a BGB) für WooCommerce-Shops umsetzt.
 
 Verbraucher:innen können online geschlossene Fernabsatzverträge (WooCommerce-Bestellungen)
 genauso einfach widerrufen, wie sie geschlossen wurden — über einen gut sichtbaren,
-loginfreien Button mit zweistufigem Bestätigungsverfahren und automatischer
-Eingangsbestätigung per E-Mail.
+loginfreien Button mit zweistufiger Bestätigung und automatischer Eingangsbestätigung per E-Mail.
 
-## Status
+## Funktionsumfang
 
-In aktiver Entwicklung. Die Umsetzungs-Roadmap steht in [`PLAN.md`](PLAN.md).
+- **Loginfreier Sticky-Button** sitewide (Position unten rechts/links/mittig), optional zusätzlicher Footer-Textlink und `[widerrufsbutton]`-Shortcode.
+- **Barrierearmes Modal** mit Background-Blur, Fokus-Trap, ESC-Schließen, `role="dialog"`/`aria-modal`.
+- **Zweistufiger Ablauf:** Identifikation → gesonderte verbindliche Bestätigung. Kein Pflicht-Grund (optionales Freitextfeld).
+- **Eingeloggt:** bestellbezogene Auswahl der eigenen, noch widerrufbaren Bestellungen.
+- **Gast:** Abgleich über E-Mail + Bestellnummer mit flexiblem Nummern-Matching; optionale E-Mail-Verifizierung (Bestätigungslink).
+- **Artikel- und Bestellbezug:** ganze Bestellung oder einzelne Position; auf Produktseiten wird die Artikelnummer vorausgefüllt.
+- **Produktseiten-/Kundenkonto-Integration:** Button im Konto je Bestellung mit Vorauswahl.
+- **Automatische Eingangsbestätigung** (dauerhafter Datenträger) inkl. Datum + Uhrzeit, plus Betreiber-Benachrichtigung – über die WooCommerce-Mailer-Infrastruktur, Templates überschreibbar.
+- **Eigene Datenbanktabelle** mit Datensnapshot beim Eingang und Aktivitäts-Log.
+- **Admin-Backend** unter WooCommerce: Liste (Filter/Suche/Sortierung), Detailansicht mit Statuswechsel und Verlauf, 30-Tage-Statistik, CSV-Export.
+- **Produkt-Ausschlüsse** (Typ/Kategorie/Einzelprodukt) und **Duplikat-Prüfung**.
+- **HPOS-kompatibel**, vollständige i18n (mitgelieferte `.pot`), Default-Sprache Deutsch.
 
-## Eckpunkte
+## Anforderungen
 
-- Loginfreier Sticky-Button sitewide + barrierearmes Modal (Fokus-Trap, Background-Blur)
-- Zweistufiger Ablauf (Identifikation → gesonderte verbindliche Bestätigung)
-- Eingeloggte Bestellauswahl + Gast-Abgleich mit flexiblem Bestellnummern-Matching
-- Automatische Eingangsbestätigung auf dauerhaftem Datenträger (E-Mail)
-- Eigene Datenbanktabelle mit Datensnapshot beim Eingang
-- Admin-Übersicht unter dem WooCommerce-Menü
-- HPOS-kompatibel, **read-only** gegenüber WooCommerce-Bestellungen (Billbee-kompatibel)
+- WordPress 6.0+
+- WooCommerce 6.0+
+- PHP 7.4+
 
 ## Installation
 
-1. Ordner `widerrufsbutton-fuer-woocommerce` nach `wp-content/plugins/` kopieren.
-2. Plugin im WordPress-Backend aktivieren (WooCommerce muss aktiv sein).
-3. Unter **WooCommerce → Widerrufe → Einstellungen** konfigurieren.
+1. Ordner `widerrufsbutton-fuer-woocommerce` nach `wp-content/plugins/` kopieren (oder als ZIP über *Plugins → Installieren* hochladen).
+2. Plugin im WordPress-Backend aktivieren (WooCommerce muss aktiv sein). Bei Aktivierung werden die Tabellen `wp_wc_widerrufe` und `wp_wc_widerrufe_log` angelegt.
+3. Unter **WooCommerce → Widerruf-Einstellungen** konfigurieren.
+4. Betreff/Texte der E-Mails unter **WooCommerce → Einstellungen → E-Mails** anpassen.
+
+## Konfiguration (Auszug)
+
+- **Anzeige:** Button-Text, Position, Sichtbarkeit (sitewide / Produktseite / Kundenkonto / Footer-Link), Footer-Link-Text.
+- **Ablauf & Benachrichtigung:** Gast-Verifizierung, additive Bestellnotiz, Ablehnungs-Mail, Empfänger der Betreiber-Mail.
+- **Fristlogik:** Tage (Default 14) und Berechnungsbasis (Bestelldatum / Abschlussdatum) – **datumsbasiert**, nicht statusbasiert.
+- **Produkt-Ausschlüsse:** nach Typ, Kategorie oder einzelnen Produkt-IDs.
+- **Datenschutz:** optionales Löschen aller Daten bei Deinstallation.
+
+## Funktionsweise des Widerrufs
+
+1. Verbraucher:in öffnet das Modal über den Button.
+2. **Schritt 1 – Identifikation:** eingeloggt per Bestellauswahl, als Gast per Name, Bestellnummer und E-Mail.
+3. **Schritt 2 – Bestätigung:** gesonderte Schaltfläche „Widerruf verbindlich bestätigen".
+4. Bei Gästen mit aktivierter Verifizierung wird zunächst ein Bestätigungslink per E-Mail versendet; erst nach Klick gilt der Widerruf als eingegangen.
+5. Der Widerruf wird mit Snapshot gespeichert, eine Eingangsbestätigung an die Verbraucher:in sowie eine Benachrichtigung an den Betreiber versendet.
+
+## Kompatibilität mit Warenwirtschaft (Billbee & Co.)
+
+Das Plugin arbeitet **read-only** gegenüber WooCommerce-Bestellungen:
+
+- **kein** Wechsel des WooCommerce-Bestellstatus, **keine** Refunds, **keine** Bestandsänderungen,
+- die Fristlogik basiert auf dem **Bestell-/Lieferdatum**, nicht auf dem Status (der von Billbee umgeschrieben werden kann),
+- beim Eingang wird ein **unabhängiger Datensnapshot** gespeichert (bleibt erhalten, auch wenn Billbee WC-Kundendaten später anonymisiert),
+- optional wird rein additiv eine **Bestellnotiz** angehängt (abschaltbar).
+
+Eine spätere **Billbee-API-Anbindung (Phase 2)** ist über die gekapselte Schnittstelle
+`Widerrufsbutton\Notifier` vorbereitet (Default: `Null_Notifier`, No-op) und per Filter `wdbtn_notifier` austauschbar.
+
+## Hooks (Auswahl)
+
+- `wdbtn_withdrawal_created` ( int $id, array $record ) — nach finaler Erfassung.
+- `wdbtn_verification_requested` ( int $id, array $record, string $token ) — Gast-Verifizierung.
+- `wdbtn_status_changed` ( int $id, string $status, string $note ) — Statuswechsel im Backend.
+- `wdbtn_notifier` (Filter) — eigene `Notifier`-Implementierung einhängen (Phase 2).
+- `wdbtn_rate_limit_max` / `wdbtn_rate_limit_window` (Filter) — Rate-Limit anpassen.
+
+## E-Mail-Templates überschreiben
+
+Templates liegen in `templates/emails/` und lassen sich im Theme überschreiben:
+
+```
+yourtheme/woocommerce/emails/confirmation-customer.php
+yourtheme/woocommerce/emails/notification-admin.php
+```
+
+## Daten & DSGVO
+
+Es werden nur die für den Widerruf erforderlichen Daten gespeichert (Datensparsamkeit):
+Name, E-Mail, Bestellnummer/-bezug, optionaler Grund, Zeitpunkt sowie ein **gehashter** IP-Wert.
+Bei der Deinstallation können alle Daten optional vollständig entfernt werden (`uninstall.php`).
+
+## Übersetzung
+
+Alle Strings sind übersetzbar (Textdomain `widerrufsbutton-fuer-woocommerce`).
+Die Vorlage liegt unter `languages/widerrufsbutton-fuer-woocommerce.pot`.
 
 ## Rechtlicher Disclaimer
 
 Dieses Plugin setzt die technischen Anforderungen der EU-Richtlinie 2023/2673 bzw. § 356a BGB
 nach bestem Wissen um. Es stellt **keine Rechtsberatung** dar und ersetzt nicht die bestehende
-Widerrufsbelehrung oder andere Widerrufswege. Die finale rechtliche Prüfung der Einrichtung und
-Konfiguration obliegt dem Shop-Betreiber.
+Widerrufsbelehrung oder andere Widerrufswege. Die Vorauswahl widerrufbarer Bestellungen ist eine
+sinnvolle Hilfe, trifft aber keine rechtsverbindliche Entscheidung; das Plugin blockiert einen
+Widerruf nicht hart. Die finale rechtliche Prüfung der Einrichtung, Konfiguration und der
+gesetzlichen Pflichten obliegt dem Shop-Betreiber.
+
+## Changelog
+
+### 0.1.0
+- Erste Version: Sticky-Button + Modal (zweistufig), Submission mit Snapshot, Eingangsbestätigung + Betreiber-Mail, eingeloggte Bestellauswahl, flexibler Gast-Abgleich, Gast-Verifizierung, datumsbasierte Fristlogik, Produkt-Ausschlüsse, Duplikat-Prüfung, Admin-Übersicht mit Statistik/Log/CSV, Einstellungsseite, HPOS-Kompatibilität, read-only/Billbee-konform, i18n.
