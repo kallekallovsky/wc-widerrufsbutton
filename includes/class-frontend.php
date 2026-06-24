@@ -64,17 +64,20 @@ class Frontend {
 			'wdbtn-frontend',
 			'WDBTN',
 			array(
-				'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-				'action'     => 'wdbtn_submit',
-				'nonce'      => wp_create_nonce( 'wdbtn_submit' ),
-				'isLoggedIn' => is_user_logged_in() ? 1 : 0,
-				'prefillSku' => $this->current_product_ref(),
+				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+				'action'       => 'wdbtn_submit',
+				'nonce'        => wp_create_nonce( 'wdbtn_submit' ),
+				'ordersAction' => 'wdbtn_orders',
+				'ordersNonce'  => wp_create_nonce( 'wdbtn_orders' ),
+				'isLoggedIn'   => is_user_logged_in() ? 1 : 0,
+				'prefillSku'   => $this->current_product_ref(),
 				'i18n'       => array(
 					'genericError'  => __( 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', 'widerrufsbutton-fuer-woocommerce' ),
 					'notReady'      => __( 'Das Absenden ist noch nicht verfügbar.', 'widerrufsbutton-fuer-woocommerce' ),
 					'fillRequired'  => __( 'Bitte füllen Sie die Pflichtfelder aus.', 'widerrufsbutton-fuer-woocommerce' ),
 					'invalidEmail'  => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'widerrufsbutton-fuer-woocommerce' ),
 					'sending'       => __( 'Wird gesendet …', 'widerrufsbutton-fuer-woocommerce' ),
+					'checkEmail'    => __( 'Bitte bestätigen Sie Ihre E-Mail', 'widerrufsbutton-fuer-woocommerce' ),
 				),
 			)
 		);

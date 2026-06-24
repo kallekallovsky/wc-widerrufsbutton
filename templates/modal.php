@@ -42,6 +42,7 @@ $wdbtn_settings = isset( $settings ) && is_array( $settings ) ? $settings : arra
 						<option value=""><?php esc_html_e( '– Bitte wählen –', 'widerrufsbutton-fuer-woocommerce' ); ?></option>
 					</select>
 					<p class="wdbtn-hint"><?php esc_html_e( 'Es werden nur Bestellungen angezeigt, für die ein Widerruf noch möglich ist.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+					<p class="wdbtn-hint wdbtn-no-orders" hidden><?php esc_html_e( 'Für Ihr Konto wurden keine widerrufbaren Bestellungen gefunden.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 				</div>
 
 				<div class="wdbtn-guest-only" hidden>
@@ -108,8 +109,8 @@ $wdbtn_settings = isset( $settings ) && is_array( $settings ) ? $settings : arra
 			<?php /* ---------- Abschluss ---------- */ ?>
 			<div class="wdbtn-step" data-step="done" hidden>
 				<div class="wdbtn-success" role="status">
-					<h3><?php esc_html_e( 'Widerruf eingegangen', 'widerrufsbutton-fuer-woocommerce' ); ?></h3>
-					<p><?php esc_html_e( 'Vielen Dank. Eine Eingangsbestätigung wurde an Ihre E-Mail-Adresse gesendet.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+					<h3 id="wdbtn-done-title"><?php esc_html_e( 'Vielen Dank', 'widerrufsbutton-fuer-woocommerce' ); ?></h3>
+					<p id="wdbtn-done-text"><?php esc_html_e( 'Eine Eingangsbestätigung wurde an Ihre E-Mail-Adresse gesendet.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 				</div>
 				<div class="wdbtn-actions">
 					<button type="button" class="wdbtn-btn" data-wdbtn-close>

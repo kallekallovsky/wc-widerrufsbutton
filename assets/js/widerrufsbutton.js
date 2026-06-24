@@ -42,6 +42,7 @@
 		// Eingeloggt vs. Gast.
 		if ( cfg.isLoggedIn ) {
 			if ( loggedinBlock ) { loggedinBlock.hidden = false; }
+			loadOrders();
 		} else if ( guestBlock ) {
 			guestBlock.hidden = false;
 		}
@@ -56,6 +57,33 @@
 			if ( skuInput && prefill.sku ) { skuInput.value = prefill.sku; }
 			if ( pidInput && prefill.id ) { pidInput.value = prefill.id; }
 			if ( scopeInput ) { scopeInput.value = 'item'; }
+		}
+
+		function loadOrders() {
+			if ( ! cfg.isLoggedIn || ! orderSelect || ! cfg.ordersAction ) { return; }
+			var data = new FormData();
+			data.append( 'action', cfg.ordersAction );
+			data.append( 'nonce', cfg.ordersNonce || '' );
+			fetch( cfg.ajaxUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				body: data
+			} ).then( function ( res ) {
+				return res.json();
+			} ).then( function ( json ) {
+				if ( ! json || ! json.success || ! json.data ) { return; }
+				var orders = json.data.orders || [];
+				orders.forEach( function ( o ) {
+					var opt = document.createElement( 'option' );
+					opt.value = o.id;
+					opt.textContent = o.label;
+					orderSelect.appendChild( opt );
+				} );
+				if ( ! orders.length ) {
+					var hint = modal.querySelector( '.wdbtn-no-orders' );
+					if ( hint ) { hint.hidden = false; }
+				}
+			} ).catch( function () {} );
 		}
 
 		function showStep( name ) {
@@ -228,6 +256,14 @@
 				var json = null;
 				try { json = JSON.parse( text ); } catch ( e ) { json = null; }
 				if ( json && json.success ) {
+					var doneText = document.getElementById( 'wdbtn-done-text' );
+					if ( doneText && json.data && json.data.message ) {
+						doneText.textContent = json.data.message;
+					}
+					var doneTitle = document.getElementById( 'wdbtn-done-title' );
+					if ( doneTitle && json.data && json.data.pending ) {
+						doneTitle.textContent = ( i18n.checkEmail || doneTitle.textContent );
+					}
 					showStep( 'done' );
 					focusFirst();
 				} else {

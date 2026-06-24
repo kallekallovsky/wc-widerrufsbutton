@@ -114,6 +114,51 @@ class Repository {
 	}
 
 	/**
+	 * Liefert einen Widerruf anhand des Verifizierungs-Tokens.
+	 *
+	 * @param string $token Token.
+	 * @return array|null
+	 */
+	public static function get_by_token( $token ) {
+		global $wpdb;
+
+		if ( '' === (string) $token ) {
+			return null;
+		}
+
+		$table = Install::table_withdrawals();
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE verification_token = %s", (string) $token ),
+			ARRAY_A
+		);
+
+		return $row ? $row : null;
+	}
+
+	/**
+	 * Markiert einen Widerruf als verifiziert und entfernt den Token.
+	 *
+	 * @param int $id Datensatz-ID.
+	 * @return void
+	 */
+	public static function mark_verified( $id ) {
+		global $wpdb;
+
+		$wpdb->update(
+			Install::table_withdrawals(),
+			array(
+				'verification_status' => 'verified',
+				'verification_token'  => null,
+				'token_expires_at'    => null,
+			),
+			array( 'id' => (int) $id ),
+			array( '%s', '%s', '%s' ),
+			array( '%d' )
+		);
+	}
+
+	/**
 	 * Liefert einen Widerruf als assoziatives Array.
 	 *
 	 * @param int $id Datensatz-ID.

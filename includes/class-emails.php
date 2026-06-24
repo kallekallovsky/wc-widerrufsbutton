@@ -25,6 +25,7 @@ class Emails {
 	public function __construct() {
 		add_filter( 'woocommerce_email_classes', array( $this, 'register' ) );
 		add_action( 'wdbtn_withdrawal_created', array( $this, 'on_created' ), 10, 2 );
+		add_action( 'wdbtn_verification_requested', array( $this, 'on_verification_requested' ), 10, 3 );
 	}
 
 	/**
@@ -71,6 +72,49 @@ class Emails {
 		} else {
 			Repository::add_log( $id, 'system', 'confirmation_failed', '' );
 		}
+	}
+
+	/**
+	 * Versendet die Verifizierungs-E-Mail an Gäste (Bestätigungslink).
+	 *
+	 * @param int    $id     Widerruf-ID.
+	 * @param array  $record Snapshot.
+	 * @param string $token  Verifizierungs-Token.
+	 * @return void
+	 */
+	public function on_verification_requested( $id, $record, $token ) {
+		if ( empty( $record['email'] ) || ! is_email( $record['email'] ) ) {
+			return;
+		}
+
+		$link = add_query_arg(
+			array( 'wdbtn_verify' => rawurlencode( $token ) ),
+			home_url( '/' )
+		);
+
+		$subject = sprintf(
+			/* translators: %s: Shop-Name */
+			__( 'Bitte bestätigen Sie Ihren Widerruf bei %s', 'widerrufsbutton-fuer-woocommerce' ),
+			wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
+		);
+
+		$lines   = array();
+		$lines[] = sprintf( __( 'Hallo %s,', 'widerrufsbutton-fuer-woocommerce' ), $record['name'] );
+		$lines[] = '';
+		$lines[] = sprintf(
+			/* translators: %s: Bestellnummer */
+			__( 'für Ihren Widerruf zur Bestellung %s ist noch ein Bestätigungsschritt nötig.', 'widerrufsbutton-fuer-woocommerce' ),
+			$record['order_number']
+		);
+		$lines[] = __( 'Bitte bestätigen Sie Ihren Widerruf über den folgenden Link:', 'widerrufsbutton-fuer-woocommerce' );
+		$lines[] = '';
+		$lines[] = esc_url_raw( $link );
+		$lines[] = '';
+		$lines[] = __( 'Der Link ist 24 Stunden gültig. Erst nach Bestätigung gilt Ihr Widerruf als eingegangen und Sie erhalten eine Eingangsbestätigung.', 'widerrufsbutton-fuer-woocommerce' );
+		$lines[] = '';
+		$lines[] = __( 'Falls Sie diesen Widerruf nicht ausgelöst haben, ignorieren Sie diese E-Mail bitte.', 'widerrufsbutton-fuer-woocommerce' );
+
+		wp_mail( $record['email'], $subject, implode( "\n", $lines ) );
 	}
 
 	/**
