@@ -145,6 +145,53 @@ class Orders {
 	}
 
 	/**
+	 * Prüft, ob ein Produkt vom Widerruf ausgeschlossen ist.
+	 *
+	 * @param int $product_id Produkt-ID.
+	 * @return bool
+	 */
+	public static function is_product_excluded( $product_id ) {
+		$product_id = (int) $product_id;
+		if ( ! $product_id || ! function_exists( 'wc_get_product' ) ) {
+			return false;
+		}
+
+		$types = (array) Settings::get( 'excluded_product_types', array() );
+		$cats  = array_map( 'intval', (array) Settings::get( 'excluded_categories', array() ) );
+		$prods = array_map( 'intval', (array) Settings::get( 'excluded_products', array() ) );
+
+		if ( in_array( $product_id, $prods, true ) ) {
+			return true;
+		}
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return false;
+		}
+
+		foreach ( $types as $type ) {
+			if ( 'virtual' === $type && $product->is_virtual() ) {
+				return true;
+			}
+			if ( 'downloadable' === $type && $product->is_downloadable() ) {
+				return true;
+			}
+			if ( in_array( $type, array( 'grouped', 'external' ), true ) && $product->is_type( $type ) ) {
+				return true;
+			}
+		}
+
+		if ( $cats && function_exists( 'wc_get_product_term_ids' ) ) {
+			$term_ids = wc_get_product_term_ids( $product_id, 'product_cat' );
+			if ( array_intersect( $cats, (array) $term_ids ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Flexibler Gast-Abgleich: E-Mail + Bestellnummer gegen mehrere Quellen.
 	 *
 	 * Geprüft werden WC-Bestellnummer, _order_number(_formatted)-Meta und die

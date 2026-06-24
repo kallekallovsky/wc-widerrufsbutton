@@ -100,7 +100,7 @@ class Frontend {
 
 		if ( function_exists( 'is_product' ) && is_product() ) {
 			$product = function_exists( 'wc_get_product' ) ? wc_get_product( get_the_ID() ) : null;
-			if ( $product ) {
+			if ( $product && ! Orders::is_product_excluded( $product->get_id() ) ) {
 				$ref['sku'] = (string) $product->get_sku();
 				$ref['id']  = (int) $product->get_id();
 			}

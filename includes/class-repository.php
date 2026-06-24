@@ -114,6 +114,38 @@ class Repository {
 	}
 
 	/**
+	 * Prüft, ob bereits ein offener/bestätigter Widerruf existiert (Duplikat).
+	 *
+	 * Berücksichtigt nur verifizierte Einträge in nicht-abgelehnten Status.
+	 *
+	 * @param int    $order_id   Bestell-ID.
+	 * @param string $scope      order|item.
+	 * @param int    $product_id Produkt-ID (bei scope=item).
+	 * @return bool
+	 */
+	public static function has_open( $order_id, $scope = 'order', $product_id = 0 ) {
+		global $wpdb;
+
+		if ( ! $order_id ) {
+			return false;
+		}
+
+		$table    = Install::table_withdrawals();
+		$statuses = array( 'eingegangen', 'in_bearbeitung', 'bestaetigt' );
+		$ph       = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+
+		if ( 'item' === $scope && $product_id ) {
+			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'item' AND product_id = %d AND verification_status = 'verified' AND status IN ($ph)";
+			$params = array_merge( array( (int) $order_id, (int) $product_id ), $statuses );
+		} else {
+			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'order' AND verification_status = 'verified' AND status IN ($ph)";
+			$params = array_merge( array( (int) $order_id ), $statuses );
+		}
+
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) ) > 0;
+	}
+
+	/**
 	 * Liefert einen Widerruf anhand des Verifizierungs-Tokens.
 	 *
 	 * @param string $token Token.

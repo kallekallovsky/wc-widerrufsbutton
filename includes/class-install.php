@@ -152,9 +152,12 @@ class Install {
 			'add_order_note'      => 'yes',
 			'guest_verification'  => 'yes',
 			'admin_recipients'    => get_option( 'admin_email' ),
-			'withdrawal_days'     => 14,
-			'date_basis'          => 'order_date',
-			'delete_on_uninstall' => 'no',
+			'withdrawal_days'        => 14,
+			'date_basis'             => 'order_date',
+			'excluded_product_types' => array(),
+			'excluded_categories'    => array(),
+			'excluded_products'      => array(),
+			'delete_on_uninstall'    => 'no',
 		);
 	}
 }

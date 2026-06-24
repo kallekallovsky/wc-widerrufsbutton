@@ -151,6 +151,22 @@ class Ajax {
 			'ip_hash'             => $ip ? wp_hash( $ip ) : '',
 		);
 
+		// Produkt-Ausschlüsse (artikelbezogen).
+		if ( 'item' === $scope && $product_id && Orders::is_product_excluded( $product_id ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Für diesen Artikel ist kein Online-Widerruf vorgesehen. Bitte kontaktieren Sie uns bei Fragen.', 'widerrufsbutton-fuer-woocommerce' ) ),
+				422
+			);
+		}
+
+		// Duplikat-Prüfung.
+		if ( Repository::has_open( $resolved_id, $scope, $record['product_id'] ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Für diese Bestellung liegt bereits ein Widerruf vor. Bei Fragen zum Status kontaktieren Sie uns bitte.', 'widerrufsbutton-fuer-woocommerce' ) ),
+				409
+			);
+		}
+
 		// Gast-Verifizierung (Anti-Missbrauch), sofern aktiviert.
 		$needs_verification = ( ! $user_id ) && Settings::is_on( 'guest_verification' );
 
