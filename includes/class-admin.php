@@ -129,7 +129,7 @@ class Admin {
 			<a href="<?php echo esc_url( $export_url ); ?>" class="page-title-action"><?php esc_html_e( 'CSV-Export', 'widerrufsbutton-fuer-woocommerce' ); ?></a>
 			<hr class="wp-header-end">
 
-			<?php do_action( 'wdbtn_admin_list_before' ); ?>
+			<?php $this->render_stats(); ?>
 
 			<form method="get">
 				<input type="hidden" name="page" value="<?php echo esc_attr( self::MENU_SLUG ); ?>">
@@ -138,6 +138,36 @@ class Admin {
 				$table->display();
 				?>
 			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Kennzahlen der letzten 30 Tage.
+	 *
+	 * @return void
+	 */
+	private function render_stats() {
+		$since  = gmdate( 'Y-m-d H:i:s', time() - ( 30 * DAY_IN_SECONDS ) );
+		$counts = Repository::counts_by_status( $since );
+
+		$open = ( isset( $counts['eingegangen'] ) ? $counts['eingegangen'] : 0 ) + ( isset( $counts['in_bearbeitung'] ) ? $counts['in_bearbeitung'] : 0 );
+		$done = ( isset( $counts['bestaetigt'] ) ? $counts['bestaetigt'] : 0 ) + ( isset( $counts['abgelehnt'] ) ? $counts['abgelehnt'] : 0 );
+		$all  = array_sum( $counts );
+		?>
+		<div class="wdbtn-stats">
+			<div class="wdbtn-stat">
+				<div class="wdbtn-stat-num"><?php echo (int) $open; ?></div>
+				<div class="wdbtn-stat-label"><?php esc_html_e( 'Offen (30 Tage)', 'widerrufsbutton-fuer-woocommerce' ); ?></div>
+			</div>
+			<div class="wdbtn-stat">
+				<div class="wdbtn-stat-num"><?php echo (int) $done; ?></div>
+				<div class="wdbtn-stat-label"><?php esc_html_e( 'Erledigt (30 Tage)', 'widerrufsbutton-fuer-woocommerce' ); ?></div>
+			</div>
+			<div class="wdbtn-stat">
+				<div class="wdbtn-stat-num"><?php echo (int) $all; ?></div>
+				<div class="wdbtn-stat-label"><?php esc_html_e( 'Gesamt (30 Tage)', 'widerrufsbutton-fuer-woocommerce' ); ?></div>
+			</div>
 		</div>
 		<?php
 	}
@@ -215,17 +245,64 @@ class Admin {
 					<input type="hidden" name="action" value="wdbtn_update_status">
 					<input type="hidden" name="widerruf" value="<?php echo (int) $w['id']; ?>">
 					<?php wp_nonce_field( 'wdbtn_update_status' ); ?>
-					<select name="status">
-						<?php foreach ( $statuses as $key => $label ) : ?>
-							<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $w['status'], $key ); ?>><?php echo esc_html( $label ); ?></option>
-						<?php endforeach; ?>
-					</select>
+					<p>
+						<select name="status">
+							<?php foreach ( $statuses as $key => $label ) : ?>
+								<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $w['status'], $key ); ?>><?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</p>
+					<p>
+						<label for="wdbtn-note"><?php esc_html_e( 'Notiz / Ablehnungsgrund (optional)', 'widerrufsbutton-fuer-woocommerce' ); ?></label><br>
+						<textarea id="wdbtn-note" name="note" rows="3" class="large-text"></textarea>
+						<span class="description"><?php esc_html_e( 'Bei Status „Abgelehnt" wird diese Notiz – sofern aktiviert – dem Kunden per E-Mail mitgeteilt.', 'widerrufsbutton-fuer-woocommerce' ); ?></span>
+					</p>
 					<?php submit_button( __( 'Status speichern', 'widerrufsbutton-fuer-woocommerce' ), 'primary', 'submit', false ); ?>
 				</form>
+
+				<h2><?php esc_html_e( 'Verlauf', 'widerrufsbutton-fuer-woocommerce' ); ?></h2>
+				<?php $this->render_log( (int) $w['id'] ); ?>
 
 				<?php do_action( 'wdbtn_admin_detail_after', $w ); ?>
 			</div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Zeigt das Aktivitäts-Log eines Widerrufs.
+	 *
+	 * @param int $id Datensatz-ID.
+	 * @return void
+	 */
+	private function render_log( $id ) {
+		$entries = Repository::get_log( $id );
+
+		if ( ! $entries ) {
+			echo '<p><em>' . esc_html__( 'Keine Einträge.', 'widerrufsbutton-fuer-woocommerce' ) . '</em></p>';
+			return;
+		}
+		?>
+		<table class="wdbtn-log">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'Zeitpunkt', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+					<th><?php esc_html_e( 'Akteur', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+					<th><?php esc_html_e( 'Aktion', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+					<th><?php esc_html_e( 'Notiz', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $entries as $e ) : ?>
+					<tr>
+						<td><?php echo esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $e['created_at'] ) ) ); ?></td>
+						<td><?php echo esc_html( $e['actor'] ); ?></td>
+						<td><?php echo esc_html( $e['action'] ); ?></td>
+						<td><?php echo $e['note'] ? esc_html( $e['note'] ) : '—'; ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 
@@ -242,12 +319,13 @@ class Admin {
 
 		$id     = isset( $_POST['widerruf'] ) ? absint( $_POST['widerruf'] ) : 0;
 		$status = isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '';
+		$note   = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '';
 
 		if ( $id && array_key_exists( $status, self::statuses() ) ) {
 			Repository::update_status( $id, $status );
 			$user = wp_get_current_user();
-			Repository::add_log( $id, $user ? $user->user_login : 'admin', 'status_' . $status, '' );
-			do_action( 'wdbtn_status_changed', $id, $status );
+			Repository::add_log( $id, $user ? $user->user_login : 'admin', 'status_' . $status, $note );
+			do_action( 'wdbtn_status_changed', $id, $status, $note );
 		}
 
 		wp_safe_redirect(

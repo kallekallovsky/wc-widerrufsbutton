@@ -151,6 +151,7 @@ class Install {
 			'enable_footer_link'  => 'no',
 			'add_order_note'      => 'yes',
 			'guest_verification'  => 'yes',
+			'rejection_email'     => 'no',
 			'admin_recipients'    => get_option( 'admin_email' ),
 			'withdrawal_days'        => 14,
 			'date_basis'             => 'order_date',

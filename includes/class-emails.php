@@ -26,6 +26,50 @@ class Emails {
 		add_filter( 'woocommerce_email_classes', array( $this, 'register' ) );
 		add_action( 'wdbtn_withdrawal_created', array( $this, 'on_created' ), 10, 2 );
 		add_action( 'wdbtn_verification_requested', array( $this, 'on_verification_requested' ), 10, 3 );
+		add_action( 'wdbtn_status_changed', array( $this, 'on_status_changed' ), 10, 3 );
+	}
+
+	/**
+	 * Optionale Mitteilung an die Kund:in bei Ablehnung (mit Grund).
+	 *
+	 * @param int    $id     Widerruf-ID.
+	 * @param string $status Neuer Status.
+	 * @param string $note   Notiz / Ablehnungsgrund.
+	 * @return void
+	 */
+	public function on_status_changed( $id, $status, $note = '' ) {
+		if ( 'abgelehnt' !== $status || ! Settings::is_on( 'rejection_email' ) ) {
+			return;
+		}
+
+		$record = Repository::get( $id );
+		if ( ! $record || empty( $record['email'] ) || ! is_email( $record['email'] ) ) {
+			return;
+		}
+
+		$subject = sprintf(
+			/* translators: %s: Shop-Name */
+			__( 'Information zu Ihrem Widerruf bei %s', 'widerrufsbutton-fuer-woocommerce' ),
+			wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
+		);
+
+		$lines   = array();
+		$lines[] = sprintf( __( 'Hallo %s,', 'widerrufsbutton-fuer-woocommerce' ), $record['name'] );
+		$lines[] = '';
+		$lines[] = sprintf(
+			/* translators: %s: Bestellnummer */
+			__( 'zu Ihrem Widerruf für die Bestellung %s haben wir eine Rückmeldung für Sie.', 'widerrufsbutton-fuer-woocommerce' ),
+			$record['order_number']
+		);
+		if ( '' !== $note ) {
+			$lines[] = '';
+			$lines[] = __( 'Anmerkung:', 'widerrufsbutton-fuer-woocommerce' ) . ' ' . $note;
+		}
+		$lines[] = '';
+		$lines[] = __( 'Bei Rückfragen können Sie sich jederzeit an uns wenden. Ihre gesetzlichen Rechte bleiben unberührt.', 'widerrufsbutton-fuer-woocommerce' );
+
+		wp_mail( $record['email'], $subject, implode( "\n", $lines ) );
+		Repository::add_log( $id, 'system', 'rejection_email_sent', '' );
 	}
 
 	/**
