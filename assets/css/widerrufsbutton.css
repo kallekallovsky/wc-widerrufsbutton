@@ -68,6 +68,27 @@
 	transform: translateX(-50%) translateY(1px);
 }
 
+/* Footer-Textlink */
+.wdbtn-footer-link {
+	text-align: center;
+	padding: 14px 10px;
+}
+
+.wdbtn-textlink {
+	background: transparent;
+	color: var(--wdbtn-accent);
+	box-shadow: none;
+	text-decoration: underline;
+	padding: 4px 8px;
+	font-weight: 600;
+}
+
+.wdbtn-textlink:hover,
+.wdbtn-textlink:focus-visible {
+	background: transparent;
+	color: var(--wdbtn-accent-hover);
+}
+
 /* ---------- Overlay & Modal ---------- */
 .wdbtn-overlay {
 	position: fixed;

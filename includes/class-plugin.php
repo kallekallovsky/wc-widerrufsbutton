@@ -65,10 +65,11 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			new Admin();
+			new Settings_Page();
 		}
 
 		/**
-		 * Einstiegspunkt für weitere Komponenten (Settings).
+		 * Einstiegspunkt für eigene Erweiterungen.
 		 */
 		do_action( 'wdbtn_init', $this );
 	}

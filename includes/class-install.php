@@ -144,6 +144,7 @@ class Install {
 	public static function default_settings() {
 		return array(
 			'button_text'         => __( 'Vertrag widerrufen', 'widerrufsbutton-fuer-woocommerce' ),
+			'footer_link_text'    => __( 'Vertrag widerrufen', 'widerrufsbutton-fuer-woocommerce' ),
 			'button_position'     => 'bottom-right',
 			'enable_sitewide'     => 'yes',
 			'enable_product'      => 'yes',

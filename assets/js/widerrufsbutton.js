@@ -27,6 +27,7 @@
 
 		var lastFocused = null;
 		var submitting = false;
+		var desiredOrder = 0;
 
 		var steps = {
 			'1': modal.querySelector( '[data-step="1"]' ),
@@ -83,7 +84,14 @@
 					var hint = modal.querySelector( '.wdbtn-no-orders' );
 					if ( hint ) { hint.hidden = false; }
 				}
+				applyDesiredOrder();
 			} ).catch( function () {} );
+		}
+
+		function applyDesiredOrder() {
+			if ( ! desiredOrder || ! orderSelect ) { return; }
+			var opt = orderSelect.querySelector( 'option[value="' + desiredOrder + '"]' );
+			if ( opt ) { orderSelect.value = String( desiredOrder ); }
 		}
 
 		function showStep( name ) {
@@ -132,6 +140,19 @@
 
 		function open( trigger ) {
 			lastFocused = trigger || document.activeElement;
+			// Per-Trigger-Bestellbezug (Kundenkonto).
+			if ( trigger ) {
+				var oid = trigger.getAttribute( 'data-order-id' ) || '';
+				if ( ! oid ) {
+					var href = trigger.getAttribute( 'href' ) || '';
+					var m = href.match( /wdbtn-order-(\d+)/ );
+					if ( m ) { oid = m[ 1 ]; }
+				}
+				if ( oid ) {
+					desiredOrder = parseInt( oid, 10 );
+					applyDesiredOrder();
+				}
+			}
 			// Per-Trigger-Artikelbezug.
 			if ( trigger ) {
 				var sku = trigger.getAttribute( 'data-sku' ) || '';

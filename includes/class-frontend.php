@@ -37,6 +37,34 @@ class Frontend {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_footer', array( $this, 'render_footer' ), 20 );
 		add_shortcode( 'widerrufsbutton', array( $this, 'shortcode' ) );
+		add_filter( 'woocommerce_my_account_my_orders_actions', array( $this, 'my_account_action' ), 10, 2 );
+	}
+
+	/**
+	 * Fügt im Kundenkonto pro Bestellung einen Widerrufen-Button hinzu.
+	 *
+	 * @param array     $actions Vorhandene Aktionen.
+	 * @param \WC_Order $order   Bestellung.
+	 * @return array
+	 */
+	public function my_account_action( $actions, $order ) {
+		if ( ! Settings::is_on( 'enable_dashboard' ) ) {
+			return $actions;
+		}
+
+		if ( class_exists( '\Widerrufsbutton\Orders' ) && ! Orders::is_within_window( $order ) ) {
+			return $actions;
+		}
+
+		// Sorgt dafür, dass das Modal im Footer ausgegeben wird.
+		self::$needs_modal = true;
+
+		$actions['wdbtn-trigger'] = array(
+			'url'  => '#wdbtn-order-' . $order->get_id(),
+			'name' => __( 'Widerrufen', 'widerrufsbutton-fuer-woocommerce' ),
+		);
+
+		return $actions;
 	}
 
 	/**
@@ -115,13 +143,22 @@ class Frontend {
 	 * @return void
 	 */
 	public function render_footer() {
-		$settings = Settings::all();
+		$settings   = Settings::all();
+		$show_modal = ( 'yes' === $settings['enable_sitewide'] ) || self::$needs_modal;
 
 		if ( 'yes' === $settings['enable_sitewide'] ) {
 			$this->output_trigger( $settings, true );
 		}
 
-		if ( 'yes' === $settings['enable_sitewide'] || self::$needs_modal ) {
+		if ( 'yes' === $settings['enable_footer_link'] ) {
+			printf(
+				'<div class="wdbtn-footer-link"><button type="button" class="wdbtn-trigger wdbtn-textlink" aria-haspopup="dialog" aria-controls="wdbtn-modal">%s</button></div>',
+				esc_html( $settings['footer_link_text'] )
+			);
+			$show_modal = true;
+		}
+
+		if ( $show_modal ) {
 			$this->output_modal( $settings );
 		}
 	}
