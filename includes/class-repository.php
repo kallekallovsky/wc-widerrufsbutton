@@ -114,6 +114,122 @@ class Repository {
 	}
 
 	/**
+	 * Abfrage für die Admin-Liste (Filter, Suche, Sortierung, Pagination).
+	 *
+	 * @param array $args Argumente.
+	 * @return array { items: array, total: int }
+	 */
+	public static function query( $args = array() ) {
+		global $wpdb;
+
+		$table = Install::table_withdrawals();
+
+		$a = wp_parse_args(
+			$args,
+			array(
+				'status'    => '',
+				'search'    => '',
+				'date_from' => '',
+				'date_to'   => '',
+				'orderby'   => 'created_at',
+				'order'     => 'DESC',
+				'per_page'  => 20,
+				'paged'     => 1,
+			)
+		);
+
+		$where  = 'WHERE 1=1';
+		$params = array();
+
+		if ( '' !== $a['status'] ) {
+			$where   .= ' AND status = %s';
+			$params[] = $a['status'];
+		}
+		if ( '' !== $a['search'] ) {
+			$like     = '%' . $wpdb->esc_like( $a['search'] ) . '%';
+			$where   .= ' AND ( order_number LIKE %s OR email LIKE %s OR name LIKE %s )';
+			$params[] = $like;
+			$params[] = $like;
+			$params[] = $like;
+		}
+		if ( '' !== $a['date_from'] ) {
+			$where   .= ' AND created_at >= %s';
+			$params[] = $a['date_from'] . ' 00:00:00';
+		}
+		if ( '' !== $a['date_to'] ) {
+			$where   .= ' AND created_at <= %s';
+			$params[] = $a['date_to'] . ' 23:59:59';
+		}
+
+		// Whitelist für Sortierung (sichere Interpolation).
+		$allowed = array( 'created_at', 'order_number', 'email', 'status', 'id' );
+		$orderby = in_array( $a['orderby'], $allowed, true ) ? $a['orderby'] : 'created_at';
+		$order   = ( 'ASC' === strtoupper( $a['order'] ) ) ? 'ASC' : 'DESC';
+
+		$per    = max( 1, (int) $a['per_page'] );
+		$offset = max( 0, ( (int) $a['paged'] - 1 ) * $per );
+
+		$total_sql = "SELECT COUNT(*) FROM {$table} {$where}";
+		$total     = (int) $wpdb->get_var( $params ? $wpdb->prepare( $total_sql, $params ) : $total_sql );
+
+		$items_sql = "SELECT * FROM {$table} {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d";
+		$iparams   = array_merge( $params, array( $per, $offset ) );
+		$items     = $wpdb->get_results( $wpdb->prepare( $items_sql, $iparams ), ARRAY_A );
+
+		return array(
+			'items' => $items ? $items : array(),
+			'total' => $total,
+		);
+	}
+
+	/**
+	 * Aggregierte Anzahl je Status seit einem Stichtag (für Statistik).
+	 *
+	 * @param string $since MySQL-Datetime (z. B. vor 30 Tagen) oder leer.
+	 * @return array status => count
+	 */
+	public static function counts_by_status( $since = '' ) {
+		global $wpdb;
+
+		$table = Install::table_withdrawals();
+
+		if ( '' !== $since ) {
+			$rows = $wpdb->get_results(
+				$wpdb->prepare( "SELECT status, COUNT(*) AS c FROM {$table} WHERE created_at >= %s GROUP BY status", $since ),
+				ARRAY_A
+			);
+		} else {
+			$rows = $wpdb->get_results( "SELECT status, COUNT(*) AS c FROM {$table} GROUP BY status", ARRAY_A );
+		}
+
+		$out = array();
+		foreach ( (array) $rows as $row ) {
+			$out[ $row['status'] ] = (int) $row['c'];
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Liefert die Log-Einträge eines Widerrufs (chronologisch).
+	 *
+	 * @param int $widerruf_id Bezugs-ID.
+	 * @return array
+	 */
+	public static function get_log( $widerruf_id ) {
+		global $wpdb;
+
+		$table = Install::table_log();
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE widerruf_id = %d ORDER BY id ASC", (int) $widerruf_id ),
+			ARRAY_A
+		);
+
+		return $rows ? $rows : array();
+	}
+
+	/**
 	 * Prüft, ob bereits ein offener/bestätigter Widerruf existiert (Duplikat).
 	 *
 	 * Berücksichtigt nur verifizierte Einträge in nicht-abgelehnten Status.

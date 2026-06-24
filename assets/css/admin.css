@@ -1,0 +1,79 @@
+/* Widerrufsbutton für WooCommerce – Admin-Styles */
+
+.wdbtn-status {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 12px;
+	line-height: 1.6;
+	white-space: nowrap;
+}
+
+.wdbtn-status-eingegangen {
+	background: #e5f0fb;
+	color: #1d4ed8;
+}
+
+.wdbtn-status-in_bearbeitung {
+	background: #fef3cd;
+	color: #8a6d1b;
+}
+
+.wdbtn-status-bestaetigt {
+	background: #e3f3e6;
+	color: #1a7f37;
+}
+
+.wdbtn-status-abgelehnt {
+	background: #fce6e6;
+	color: #b32d2e;
+}
+
+.wdbtn-detail .widefat th {
+	width: 220px;
+}
+
+.wdbtn-detail h2 {
+	margin-top: 24px;
+}
+
+.wdbtn-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin: 16px 0;
+}
+
+.wdbtn-stat {
+	flex: 1 1 160px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 14px 16px;
+}
+
+.wdbtn-stat .wdbtn-stat-num {
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+}
+
+.wdbtn-stat .wdbtn-stat-label {
+	color: #646970;
+	font-size: 13px;
+}
+
+.wdbtn-log {
+	margin-top: 8px;
+	border-collapse: collapse;
+	width: 100%;
+	max-width: 700px;
+}
+
+.wdbtn-log th,
+.wdbtn-log td {
+	text-align: left;
+	padding: 6px 10px;
+	border-bottom: 1px solid #e0e0e0;
+	font-size: 13px;
+}

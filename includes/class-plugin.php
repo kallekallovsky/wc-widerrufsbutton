@@ -63,9 +63,12 @@ final class Plugin {
 		new Ajax();
 		new Emails();
 
+		if ( is_admin() ) {
+			new Admin();
+		}
+
 		/**
-		 * Einstiegspunkt für weitere Komponenten
-		 * (Bestelllogik, Admin, Settings).
+		 * Einstiegspunkt für weitere Komponenten (Settings).
 		 */
 		do_action( 'wdbtn_init', $this );
 	}
