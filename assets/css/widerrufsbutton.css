@@ -11,6 +11,30 @@
 	--wdbtn-radius: 8px;
 }
 
+/* ---------- Defensive Grundierung ----------
+ *
+ * Viele Themes setzen globale Button-Resets, etwa
+ *   button, .button { width: 100%; padding: 7px 30px; }
+ * Ein Element-Selektor (0,0,1) verliert gegen unsere Klassen (0,1,0),
+ * darum genuegt es, die benoetigten Ausgangswerte hier zu setzen —
+ * ohne !important. Muss VOR den konkreten Regeln stehen, damit diese
+ * einzelne Werte wieder ueberschreiben koennen.
+ */
+.wdbtn-trigger,
+.wdbtn-btn,
+.wdbtn-close {
+	width: auto;
+	min-width: 0;
+	max-width: none;
+	height: auto;
+	margin: 0;
+	float: none;
+	text-transform: none;
+	letter-spacing: normal;
+	text-decoration: none;
+	box-shadow: none;
+}
+
 /* ---------- Trigger-Button ---------- */
 .wdbtn-trigger {
 	display: inline-flex;
@@ -128,6 +152,9 @@
 	right: 12px;
 	width: 36px;
 	height: 36px;
+	/* Ohne eigenes Padding schlaegt ein Theme-Padding (z.B. 7px 30px) bei
+	   box-sizing: border-box die Breite auf die Padding-Summe hoch. */
+	padding: 0;
 	font-size: 24px;
 	line-height: 1;
 	color: var(--wdbtn-hint);

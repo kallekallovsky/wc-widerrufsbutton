@@ -5,6 +5,14 @@
 	var cfg = window.WDBTN || {};
 	var i18n = cfg.i18n || {};
 
+	/*
+	 * Bewusst strikt geprueft statt auf Truthiness vertraut: wuerde die
+	 * Konfiguration je wieder ueber wp_localize_script laufen, kaeme hier
+	 * der String "0" an — und "0" ist in JavaScript truthy. Gaeste haetten
+	 * dann wieder als eingeloggt gegolten.
+	 */
+	var isLoggedIn = ( true === cfg.isLoggedIn || 1 === cfg.isLoggedIn || '1' === cfg.isLoggedIn );
+
 	function t( key ) {
 		return i18n[ key ] || '';
 	}
@@ -41,7 +49,7 @@
 		var orderSelect = document.getElementById( 'wdbtn-order-select' );
 
 		// Eingeloggt vs. Gast.
-		if ( cfg.isLoggedIn ) {
+		if ( isLoggedIn ) {
 			if ( loggedinBlock ) { loggedinBlock.hidden = false; }
 			loadOrders();
 		} else if ( guestBlock ) {
@@ -50,18 +58,22 @@
 
 		// Produktseiten-Vorbefüllung.
 		var prefill = cfg.prefillSku || {};
-		if ( ( prefill.sku && prefill.sku.length ) || prefill.id ) {
+		// Allein die Produkt-ID entscheidet ueber den Artikelbezug: eine
+		// Artikelnummer haben laengst nicht alle Produkte, eine ID immer.
+		if ( prefill.id ) {
 			if ( skuField ) { skuField.hidden = false; }
+			var labelInput = document.getElementById( 'wdbtn-item-label' );
 			var skuInput = document.getElementById( 'wdbtn-sku' );
 			var pidInput = document.getElementById( 'wdbtn-product-id' );
 			var scopeInput = document.getElementById( 'wdbtn-scope' );
-			if ( skuInput && prefill.sku ) { skuInput.value = prefill.sku; }
-			if ( pidInput && prefill.id ) { pidInput.value = prefill.id; }
+			if ( labelInput ) { labelInput.value = prefill.label || prefill.sku || ''; }
+			if ( skuInput ) { skuInput.value = prefill.sku || ''; }
+			if ( pidInput ) { pidInput.value = prefill.id; }
 			if ( scopeInput ) { scopeInput.value = 'item'; }
 		}
 
 		function loadOrders() {
-			if ( ! cfg.isLoggedIn || ! orderSelect || ! cfg.ordersAction ) { return; }
+			if ( ! isLoggedIn || ! orderSelect || ! cfg.ordersAction ) { return; }
 			var data = new FormData();
 			data.append( 'action', cfg.ordersAction );
 			data.append( 'nonce', cfg.ordersNonce || '' );
@@ -70,9 +82,12 @@
 				credentials: 'same-origin',
 				body: data
 			} ).then( function ( res ) {
+				if ( ! res.ok ) { throw new Error( 'HTTP ' + res.status ); }
 				return res.json();
 			} ).then( function ( json ) {
-				if ( ! json || ! json.success || ! json.data ) { return; }
+				if ( ! json || ! json.success || ! json.data ) {
+					throw new Error( 'Unerwartete Antwort' );
+				}
 				var orders = json.data.orders || [];
 				orders.forEach( function ( o ) {
 					var opt = document.createElement( 'option' );
@@ -85,7 +100,16 @@
 					if ( hint ) { hint.hidden = false; }
 				}
 				applyDesiredOrder();
-			} ).catch( function () {} );
+			} ).catch( function () {
+				/*
+				 * Frueher wurde hier stillschweigend abgebrochen: das Auswahlfeld
+				 * blieb einfach leer, ohne jede Erklaerung. Bei einer gesetzlich
+				 * vorgeschriebenen Funktion darf ein Fehlschlag nicht unsichtbar
+				 * bleiben — der Gast-Pfad ueber die Bestellnummer bleibt nutzbar.
+				 */
+				showMessage( 'wdbtn-message-1', t( 'ordersFailed' ) );
+				if ( guestBlock ) { guestBlock.hidden = false; }
+			} );
 		}
 
 		function applyDesiredOrder() {

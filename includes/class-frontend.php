@@ -88,26 +88,35 @@ class Frontend {
 			true
 		);
 
-		wp_localize_script(
+		$config = array(
+			'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+			'action'       => 'wdbtn_submit',
+			'nonce'        => wp_create_nonce( 'wdbtn_submit' ),
+			'ordersAction' => 'wdbtn_orders',
+			'ordersNonce'  => wp_create_nonce( 'wdbtn_orders' ),
+			'isLoggedIn'   => is_user_logged_in(),
+			'prefillSku'   => $this->current_product_ref(),
+			'i18n'         => array(
+				'genericError'  => __( 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', 'widerrufsbutton-fuer-woocommerce' ),
+				'notReady'      => __( 'Das Absenden ist noch nicht verfügbar.', 'widerrufsbutton-fuer-woocommerce' ),
+				'fillRequired'  => __( 'Bitte füllen Sie die Pflichtfelder aus.', 'widerrufsbutton-fuer-woocommerce' ),
+				'invalidEmail'  => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'widerrufsbutton-fuer-woocommerce' ),
+				'sending'       => __( 'Wird gesendet …', 'widerrufsbutton-fuer-woocommerce' ),
+				'checkEmail'    => __( 'Bitte bestätigen Sie Ihre E-Mail', 'widerrufsbutton-fuer-woocommerce' ),
+				'ordersFailed'  => __( 'Ihre Bestellungen konnten nicht geladen werden. Bitte laden Sie die Seite neu oder geben Sie Ihre Bestellnummer manuell an.', 'widerrufsbutton-fuer-woocommerce' ),
+			),
+		);
+
+		/*
+		 * Bewusst wp_add_inline_script statt wp_localize_script: Letzteres
+		 * castet alle Werte der obersten Ebene per (string). Aus
+		 * isLoggedIn => false wuerde "" bzw. aus 0 ein "0" — und "0" ist in
+		 * JavaScript truthy. Gaeste galten dadurch als eingeloggt.
+		 */
+		wp_add_inline_script(
 			'wdbtn-frontend',
-			'WDBTN',
-			array(
-				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-				'action'       => 'wdbtn_submit',
-				'nonce'        => wp_create_nonce( 'wdbtn_submit' ),
-				'ordersAction' => 'wdbtn_orders',
-				'ordersNonce'  => wp_create_nonce( 'wdbtn_orders' ),
-				'isLoggedIn'   => is_user_logged_in() ? 1 : 0,
-				'prefillSku'   => $this->current_product_ref(),
-				'i18n'       => array(
-					'genericError'  => __( 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.', 'widerrufsbutton-fuer-woocommerce' ),
-					'notReady'      => __( 'Das Absenden ist noch nicht verfügbar.', 'widerrufsbutton-fuer-woocommerce' ),
-					'fillRequired'  => __( 'Bitte füllen Sie die Pflichtfelder aus.', 'widerrufsbutton-fuer-woocommerce' ),
-					'invalidEmail'  => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'widerrufsbutton-fuer-woocommerce' ),
-					'sending'       => __( 'Wird gesendet …', 'widerrufsbutton-fuer-woocommerce' ),
-					'checkEmail'    => __( 'Bitte bestätigen Sie Ihre E-Mail', 'widerrufsbutton-fuer-woocommerce' ),
-				),
-			)
+			'window.WDBTN = ' . wp_json_encode( $config ) . ';',
+			'before'
 		);
 	}
 
@@ -118,8 +127,9 @@ class Frontend {
 	 */
 	private function current_product_ref() {
 		$ref = array(
-			'sku' => '',
-			'id'  => 0,
+			'sku'   => '',
+			'id'    => 0,
+			'label' => '',
 		);
 
 		if ( ! Settings::is_on( 'enable_product' ) ) {
@@ -131,6 +141,9 @@ class Frontend {
 			if ( $product && ! Orders::is_product_excluded( $product->get_id() ) ) {
 				$ref['sku'] = (string) $product->get_sku();
 				$ref['id']  = (int) $product->get_id();
+				// Anzeigename: Nicht jedes Produkt hat eine Artikelnummer, einen
+				// Namen hat es immer — und Kunden erkennen ihn eher wieder.
+				$ref['label'] = (string) $product->get_name();
 			}
 		}
 

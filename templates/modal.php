@@ -63,8 +63,11 @@ $wdbtn_settings = isset( $settings ) && is_array( $settings ) ? $settings : arra
 
 				<?php /* Artikelbezug (Produktseiten-Vorbefüllung) */ ?>
 				<div class="wdbtn-field wdbtn-sku-field" hidden>
-					<label for="wdbtn-sku"><?php esc_html_e( 'Artikelnummer (optional)', 'widerrufsbutton-fuer-woocommerce' ); ?></label>
-					<input type="text" id="wdbtn-sku" name="sku" readonly>
+					<label for="wdbtn-item-label"><?php esc_html_e( 'Betroffener Artikel', 'widerrufsbutton-fuer-woocommerce' ); ?></label>
+					<?php /* Nur zur Anzeige: Produktname, ersatzweise die Artikelnummer. */ ?>
+					<input type="text" id="wdbtn-item-label" readonly>
+					<?php /* Traegt die echte Artikelnummer; kann leer sein. */ ?>
+					<input type="hidden" name="sku" id="wdbtn-sku" value="">
 					<p class="wdbtn-hint"><?php esc_html_e( 'Sie widerrufen bezogen auf diesen Artikel. Der Artikel wird intern Ihrer Bestellung zugeordnet.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 				</div>
 				<input type="hidden" name="product_id" id="wdbtn-product-id" value="0">
