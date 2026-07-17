@@ -26,6 +26,7 @@ class Settings_Page {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_init', array( $this, 'register' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 
 		/*
 		 * Ohne diesen Filter prüft options.php beim Speichern gegen den
@@ -43,6 +44,28 @@ class Settings_Page {
 	 */
 	public function settings_capability() {
 		return self::CAP;
+	}
+
+	/**
+	 * Lädt den WordPress-Farbwähler – nur auf dieser Seite.
+	 *
+	 * @param string $hook Aktueller Admin-Hook.
+	 * @return void
+	 */
+	public function enqueue( $hook ) {
+		// Der Hook endet auf dem Menü-Slug; ein Vergleich darauf haelt die
+		// Assets von allen anderen Admin-Seiten fern.
+		if ( false === strpos( (string) $hook, self::MENU_SLUG ) ) {
+			return;
+		}
+
+		wp_enqueue_style( 'wp-color-picker' );
+		wp_enqueue_script( 'wp-color-picker' );
+		wp_add_inline_script(
+			'wp-color-picker',
+			'jQuery(function($){ $(".wdbtn-color").wpColorPicker(); });',
+			'after'
+		);
 	}
 
 	/**
@@ -107,6 +130,44 @@ class Settings_Page {
 			}
 		}
 		$out['admin_recipients'] = $valid ? implode( ',', $valid ) : get_option( 'admin_email' );
+
+		// Erscheinungsbild.
+		foreach ( array( 'color_accent', 'color_accent_hover', 'color_on_accent', 'color_modal_bg', 'color_modal_text' ) as $ck ) {
+			if ( ! isset( $in[ $ck ] ) || '' === trim( (string) $in[ $ck ] ) ) {
+				// Leer ist erlaubt und bedeutet "Voreinstellung beibehalten".
+				$out[ $ck ] = '';
+				continue;
+			}
+			$color      = sanitize_hex_color( trim( (string) $in[ $ck ] ) );
+			$out[ $ck ] = $color ? $color : $d[ $ck ];
+		}
+
+		$out['radius']    = isset( $in['radius'] ) ? max( 0, min( 40, (int) $in['radius'] ) ) : $d['radius'];
+		$out['font_size'] = isset( $in['font_size'] ) ? max( 10, min( 32, (int) $in['font_size'] ) ) : $d['font_size'];
+
+		// Nur Zeichen zulassen, die in einer font-family vorkommen – so kann das
+		// Feld die Deklaration nicht verlassen und weitere Regeln anhaengen.
+		$font                = isset( $in['button_font'] ) ? (string) $in['button_font'] : '';
+		$out['button_font']  = trim( preg_replace( '/[^a-zA-Z0-9 ,\'"\-]/', '', $font ) );
+
+		/*
+		 * Eigenes CSS: strip_tags gegen </style><script>, und geschweifte
+		 * Klammern muessen ausgeglichen sein, damit ein unbeabsichtigt offener
+		 * Block nicht den Rest des Stylesheets verschluckt. Die Eingabe ist
+		 * ohnehin nur fuer Rollen mit manage_woocommerce erreichbar.
+		 */
+		$css = isset( $in['custom_css'] ) ? trim( wp_strip_all_tags( (string) $in['custom_css'] ) ) : '';
+		if ( '' !== $css && substr_count( $css, '{' ) !== substr_count( $css, '}' ) ) {
+			add_settings_error(
+				Install::OPT_SETTINGS,
+				'wdbtn_custom_css',
+				__( 'Das eigene CSS hat ungleich viele geschweifte Klammern und wurde nicht gespeichert. Der zuletzt gespeicherte Stand bleibt erhalten.', 'widerrufsbutton-fuer-woocommerce' )
+			);
+			// Bewusst der zuletzt gespeicherte Wert, nicht der Default: Sonst
+			// wuerde ein Tippfehler das bestehende CSS loeschen.
+			$css = (string) Settings::get( 'custom_css', '' );
+		}
+		$out['custom_css'] = $css;
 
 		$out['withdrawal_days'] = isset( $in['withdrawal_days'] ) ? max( 0, (int) $in['withdrawal_days'] ) : $d['withdrawal_days'];
 
@@ -206,6 +267,70 @@ class Settings_Page {
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Footer-Link-Text', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
 						<td><input type="text" class="regular-text" name="<?php echo esc_attr( $name ); ?>[footer_link_text]" value="<?php echo esc_attr( $s['footer_link_text'] ); ?>"></td>
+					</tr>
+				</table>
+
+				<h2><?php esc_html_e( 'Erscheinungsbild', 'widerrufsbutton-fuer-woocommerce' ); ?></h2>
+				<p class="description" style="max-width: 46em;">
+					<?php esc_html_e( 'Passt Button und Modal an Ihr Corporate Design an. Der Widerrufsbutton muss gut sichtbar bleiben – wählen Sie einen Farbton, der sich vom Seitenhintergrund deutlich abhebt.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+				</p>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Akzentfarbe', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="text" class="wdbtn-color" data-default-color="#b32d2e" name="<?php echo esc_attr( $name ); ?>[color_accent]" value="<?php echo esc_attr( $s['color_accent'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Hintergrund von Button und Bestätigen-Schaltfläche.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Akzentfarbe (Hover)', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="text" class="wdbtn-color" name="<?php echo esc_attr( $name ); ?>[color_accent_hover]" value="<?php echo esc_attr( $s['color_accent_hover'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Leer lassen: wird automatisch aus der Akzentfarbe abgeleitet.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Schrift auf der Akzentfarbe', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="text" class="wdbtn-color" data-default-color="#ffffff" name="<?php echo esc_attr( $name ); ?>[color_on_accent]" value="<?php echo esc_attr( $s['color_on_accent'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Muss ausreichend Kontrast zur Akzentfarbe haben (Barrierefreiheit).', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Modal-Hintergrund', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td><input type="text" class="wdbtn-color" data-default-color="#ffffff" name="<?php echo esc_attr( $name ); ?>[color_modal_bg]" value="<?php echo esc_attr( $s['color_modal_bg'] ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Modal-Textfarbe', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td><input type="text" class="wdbtn-color" data-default-color="#1d2327" name="<?php echo esc_attr( $name ); ?>[color_modal_text]" value="<?php echo esc_attr( $s['color_modal_text'] ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Eckenrundung (px)', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="number" min="0" max="40" name="<?php echo esc_attr( $name ); ?>[radius]" value="<?php echo esc_attr( $s['radius'] ); ?>">
+							<p class="description"><?php esc_html_e( '0 = eckig. Gilt für Button und Modal.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Schriftgröße Button (px)', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td><input type="number" min="10" max="32" name="<?php echo esc_attr( $name ); ?>[font_size]" value="<?php echo esc_attr( $s['font_size'] ); ?>"></td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Schriftfamilie', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="text" class="regular-text" name="<?php echo esc_attr( $name ); ?>[button_font]" value="<?php echo esc_attr( $s['button_font'] ); ?>" placeholder="z. B. inherit">
+							<p class="description"><?php esc_html_e( 'Leer lassen für die Plugin-Voreinstellung. „inherit" übernimmt die Schrift Ihres Themes.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Eigenes CSS', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<textarea class="large-text code" rows="6" name="<?php echo esc_attr( $name ); ?>[custom_css]" spellcheck="false"><?php echo esc_textarea( $s['custom_css'] ); ?></textarea>
+							<p class="description">
+								<?php esc_html_e( 'Für Feinheiten, die die Felder oben nicht abdecken. Wird nur im Frontend geladen.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+								<?php esc_html_e( 'Nutzbare Klassen: .wdbtn-trigger (Button), .wdbtn-modal, .wdbtn-overlay, .wdbtn-btn, .wdbtn-close.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+							</p>
+						</td>
 					</tr>
 				</table>
 

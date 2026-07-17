@@ -80,6 +80,11 @@ class Frontend {
 			WDBTN_VERSION
 		);
 
+		$theme_css = self::theme_css();
+		if ( '' !== $theme_css ) {
+			wp_add_inline_style( 'wdbtn-frontend', $theme_css );
+		}
+
 		wp_enqueue_script(
 			'wdbtn-frontend',
 			WDBTN_URL . 'assets/js/widerrufsbutton.js',
@@ -126,6 +131,116 @@ class Frontend {
 			'window.WDBTN = ' . wp_json_encode( $config ) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Baut die CSS-Variablen aus den Erscheinungsbild-Einstellungen.
+	 *
+	 * Die Stylesheet-Regeln greifen durchgängig auf Variablen zu, deshalb genügt
+	 * es, hier deren Werte zu überschreiben – kein Duplizieren von Regeln, keine
+	 * Spezifitätskämpfe.
+	 *
+	 * @return string CSS oder leerer String.
+	 */
+	public static function theme_css() {
+		$vars = array();
+
+		$accent = self::color( 'color_accent' );
+		if ( $accent ) {
+			$vars['--wdbtn-accent'] = $accent;
+
+			// Hover-Farbe ableiten, wenn nichts gesetzt ist: Wer eine Akzentfarbe
+			// waehlt, soll nicht zwingend eine zweite pflegen muessen.
+			$hover = self::color( 'color_accent_hover' );
+			$vars['--wdbtn-accent-hover'] = $hover ? $hover : self::darken( $accent, 18 );
+		}
+
+		$map = array(
+			'color_on_accent'  => '--wdbtn-text-on-accent',
+			'color_modal_bg'   => '--wdbtn-modal-bg',
+			'color_modal_text' => '--wdbtn-modal-text',
+		);
+		foreach ( $map as $key => $var ) {
+			$value = self::color( $key );
+			if ( $value ) {
+				$vars[ $var ] = $value;
+			}
+		}
+
+		$radius = Settings::get( 'radius', '' );
+		if ( '' !== $radius && null !== $radius ) {
+			$vars['--wdbtn-radius'] = max( 0, min( 40, (int) $radius ) ) . 'px';
+		}
+
+		$css = '';
+		if ( $vars ) {
+			$decls = '';
+			foreach ( $vars as $var => $value ) {
+				$decls .= $var . ':' . $value . ';';
+			}
+			$css .= ':root{' . $decls . '}';
+		}
+
+		$font_size = Settings::get( 'font_size', '' );
+		if ( '' !== $font_size && null !== $font_size ) {
+			$css .= '.wdbtn-trigger{font-size:' . max( 10, min( 32, (int) $font_size ) ) . 'px;}';
+		}
+
+		$font = trim( (string) Settings::get( 'button_font', '' ) );
+		if ( '' !== $font ) {
+			// Nur als Schriftfamilie verwendbare Zeichen zulassen.
+			$font = preg_replace( '/[^a-zA-Z0-9 ,\'"\-]/', '', $font );
+			if ( '' !== $font ) {
+				$css .= '.wdbtn-trigger,.wdbtn-modal{font-family:' . $font . ';}';
+			}
+		}
+
+		$custom = trim( (string) Settings::get( 'custom_css', '' ) );
+		if ( '' !== $custom ) {
+			$css .= $custom;
+		}
+
+		return $css;
+	}
+
+	/**
+	 * Liest eine Farb-Einstellung und prüft sie auf ein gültiges Hex-Format.
+	 *
+	 * @param string $key Einstellungs-Schlüssel.
+	 * @return string Hex-Farbe oder leerer String.
+	 */
+	private static function color( $key ) {
+		$value = sanitize_hex_color( (string) Settings::get( $key, '' ) );
+		return $value ? $value : '';
+	}
+
+	/**
+	 * Verdunkelt eine Hex-Farbe um einen Prozentsatz.
+	 *
+	 * @param string $hex     Hex-Farbe (#rgb oder #rrggbb).
+	 * @param int    $percent Prozent.
+	 * @return string
+	 */
+	private static function darken( $hex, $percent ) {
+		$hex = ltrim( $hex, '#' );
+
+		if ( 3 === strlen( $hex ) ) {
+			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+		}
+
+		if ( 6 !== strlen( $hex ) ) {
+			return '#' . $hex;
+		}
+
+		$factor = ( 100 - max( 0, min( 100, (int) $percent ) ) ) / 100;
+		$out    = '#';
+
+		foreach ( array( 0, 2, 4 ) as $offset ) {
+			$channel = (int) round( hexdec( substr( $hex, $offset, 2 ) ) * $factor );
+			$out    .= str_pad( dechex( max( 0, min( 255, $channel ) ) ), 2, '0', STR_PAD_LEFT );
+		}
+
+		return $out;
 	}
 
 	/**

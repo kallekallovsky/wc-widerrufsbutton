@@ -68,6 +68,7 @@ lösen also kein Release aus.
 ## Konfiguration (Auszug)
 
 - **Anzeige:** Button-Text, Position, Sichtbarkeit (sitewide / Produktseite / Kundenkonto / Footer-Link), Footer-Link-Text.
+- **Erscheinungsbild:** Akzent-, Text- und Modal-Farben, Eckenrundung, Schriftgröße und -familie, eigenes CSS – zur Anpassung an das Corporate Design.
 - **Ablauf & Benachrichtigung:** Gast-Verifizierung, additive Bestellnotiz, Ablehnungs-Mail, Empfänger der Betreiber-Mail.
 - **Fristlogik:** Tage (Default 14), Kulanzpuffer (Default 1) und Berechnungsbasis (Bestelldatum / Abschlussdatum) – **datumsbasiert**, nicht statusbasiert. Gerechnet wird in Kalendertagen: der Bestelltag zählt nicht mit, die Frist endet um 24:00 Uhr des letzten Tages (§§ 187, 188 BGB).
 - **Ohne passende Bestellung:** Widerrufe werden per Default auch dann angenommen, wenn sich keine Bestellung zuordnen lässt (Status *Nicht zugeordnet*).

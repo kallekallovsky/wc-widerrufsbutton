@@ -190,6 +190,17 @@ class Install {
 			'button_text'         => __( 'Vertrag widerrufen', 'widerrufsbutton-fuer-woocommerce' ),
 			'footer_link_text'    => __( 'Vertrag widerrufen', 'widerrufsbutton-fuer-woocommerce' ),
 			'button_position'     => 'bottom-right',
+			// Erscheinungsbild. Die Werte ueberschreiben die CSS-Variablen des
+			// Plugins; leer bedeutet jeweils "Voreinstellung beibehalten".
+			'color_accent'        => '#b32d2e',
+			'color_accent_hover'  => '',
+			'color_on_accent'     => '#ffffff',
+			'color_modal_bg'      => '#ffffff',
+			'color_modal_text'    => '#1d2327',
+			'radius'              => 8,
+			'font_size'           => 16,
+			'button_font'         => '',
+			'custom_css'          => '',
 			'enable_sitewide'     => 'yes',
 			'enable_product'      => 'yes',
 			'enable_dashboard'    => 'yes',
