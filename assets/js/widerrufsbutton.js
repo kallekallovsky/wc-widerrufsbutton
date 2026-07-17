@@ -235,7 +235,7 @@
 
 		function validateStep1() {
 			clearMessages();
-			if ( cfg.isLoggedIn && selectedOrder() ) {
+			if ( isLoggedIn && selectedOrder() ) {
 				return true;
 			}
 			// Gast-Pfad (auch Fallback für eingeloggte Nutzer ohne Auswahl).
@@ -258,7 +258,7 @@
 			if ( ! box ) { return; }
 			var rows = [];
 			var orderLabel;
-			if ( cfg.isLoggedIn && selectedOrder() ) {
+			if ( isLoggedIn && selectedOrder() ) {
 				orderLabel = orderSelect.options[ orderSelect.selectedIndex ].text;
 			} else {
 				orderLabel = val( 'wdbtn-order-number' );
