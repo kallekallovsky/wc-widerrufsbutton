@@ -107,24 +107,43 @@ class Ajax {
 			}
 
 			$order = Orders::match_guest( $email, $order_number );
-
-			if ( ! $order ) {
-				// Neutrale Fehlermeldung – keine Informationspreisgabe.
-				wp_send_json_error(
-					array( 'message' => __( 'Zu diesen Angaben wurde in diesem Shop keine Bestellung gefunden. Bitte prüfen Sie Bestellnummer und E-Mail-Adresse.', 'widerrufsbutton-fuer-woocommerce' ) ),
-					404
-				);
-			}
 		}
 
-		$resolved_id     = (int) $order->get_id();
-		$resolved_number = (string) $order->get_order_number();
-		$customer_uid    = $user_id ? $user_id : (int) $order->get_customer_id();
+		/*
+		 * Ohne zuordenbare Bestellung wurde die Erklärung früher mit HTTP 404
+		 * verworfen. Das ist die riskanteste denkbare Voreinstellung: Der
+		 * Widerruf wird mit Zugang wirksam (§ 130 BGB), nicht erst mit
+		 * erfolgreicher Zuordnung – und § 356a BGB verlangt eine Bestätigung
+		 * eben dieses Zugangs. Wer auf "verbindlich bestätigen" geklickt hat,
+		 * hat widerrufen; ein Tippfehler in der Bestellnummer ändert daran
+		 * nichts. Also: annehmen, dokumentieren, im Backend zur Klärung
+		 * flaggen. Nebeneffekt: Die Antwort ist jetzt unabhängig davon, ob es
+		 * einen Treffer gab – das beseitigt das Enumerations-Orakel.
+		 */
+		$unmatched = ( ! $order );
+
+		if ( $unmatched && ! Settings::is_on( 'accept_unmatched' ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Zu diesen Angaben wurde in diesem Shop keine Bestellung gefunden. Bitte prüfen Sie Bestellnummer und E-Mail-Adresse.', 'widerrufsbutton-fuer-woocommerce' ) ),
+				404
+			);
+		}
+
+		$resolved_id     = $order ? (int) $order->get_id() : 0;
+		$resolved_number = $order ? (string) $order->get_order_number() : $order_number;
+		$customer_uid    = $user_id ? $user_id : ( $order ? (int) $order->get_customer_id() : 0 );
 
 		// Snapshot bei eingeloggten Nutzern aus dem Konto vervollständigen.
 		if ( $user_id ) {
 			$current = wp_get_current_user();
-			if ( '' === $email && $current && $current->user_email ) {
+
+			/*
+			 * Die Kontoadresse hat Vorrang vor dem POST-Wert. Vorher wurde sie
+			 * nur ergänzt, falls das Feld leer war – ein eingeloggter Nutzer
+			 * konnte damit eine beliebige Adresse mitschicken und sich die vom
+			 * Shop signierte Eingangsbestätigung dorthin senden lassen.
+			 */
+			if ( $current && $current->user_email ) {
 				$email = sanitize_email( $current->user_email );
 			}
 			if ( '' === $name && $current ) {
@@ -133,6 +152,29 @@ class Ajax {
 					$name = sanitize_text_field( $current->display_name );
 				}
 			}
+		}
+
+		// Letzte Absicherung: Ohne gültige Adresse gäbe es keine
+		// Eingangsbestätigung – und die ist gesetzlich vorgeschrieben.
+		if ( ! is_email( $email ) ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Bitte geben Sie eine gültige E-Mail-Adresse an.', 'widerrufsbutton-fuer-woocommerce' ) ),
+				400
+			);
+		}
+
+		/*
+		 * Artikelbezug nur übernehmen, wenn der Artikel auch wirklich Position
+		 * der Bestellung ist. Sonst stünde in der gesetzlichen
+		 * Eingangsbestätigung ein Artikel, der nie bestellt wurde – und der
+		 * Duplikat-Check ließe sich durch Variieren der product_id aushebeln.
+		 * Bei nicht zugeordneten Erklärungen gibt es keine Bestellung, gegen
+		 * die geprüft werden könnte; dort bleibt die Kundenangabe stehen.
+		 */
+		if ( 'item' === $scope && $order && ( ! $product_id || ! Orders::order_has_product( $order, $product_id ) ) ) {
+			$scope      = 'order';
+			$product_id = 0;
+			$sku        = '';
 		}
 
 		// Snapshot-Datensatz.
@@ -146,23 +188,27 @@ class Ajax {
 			'name'                => $name,
 			'email'               => $email,
 			'reason'              => $reason,
-			'status'              => 'eingegangen',
+			'status'              => $unmatched ? 'nicht_zugeordnet' : 'eingegangen',
 			'confirmation_sent'   => 0,
 			'ip_hash'             => $ip ? wp_hash( $ip ) : '',
 		);
 
-		// Produkt-Ausschlüsse (artikelbezogen).
-		if ( 'item' === $scope && $product_id && Orders::is_product_excluded( $product_id ) ) {
-			wp_send_json_error(
-				array( 'message' => __( 'Für diesen Artikel ist kein Online-Widerruf vorgesehen. Bitte kontaktieren Sie uns bei Fragen.', 'widerrufsbutton-fuer-woocommerce' ) ),
-				422
-			);
-		}
+		/*
+		 * Produkt-Ausschlüsse dokumentieren statt blockieren. Vorher brach der
+		 * Request mit HTTP 422 ab – im Widerspruch zur eigenen Zusage
+		 * "blockiert nicht hart" und rechtlich heikel: "virtuell" trifft in
+		 * WooCommerce auch Dienstleistungen, die regelmäßig gerade nicht vom
+		 * Widerruf ausgenommen sind, und bei Downloads erlischt das Recht nur
+		 * unter Bedingungen, die das Plugin nicht kennt. Die Entscheidung
+		 * gehört zum Betreiber, nicht in eine Checkbox.
+		 */
+		$excluded = ( 'item' === $scope && $product_id && Orders::is_product_excluded( $product_id ) );
 
-		// Duplikat-Prüfung.
-		if ( Repository::has_open( $resolved_id, $scope, $record['product_id'] ) ) {
+		// Duplikat-Prüfung nur bei zugeordneter Bestellung – ohne order_id
+		// gibt es nichts, wogegen sinnvoll geprüft werden könnte.
+		if ( ! $unmatched && Repository::has_open( $resolved_id, $scope, $record['product_id'] ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Für diese Bestellung liegt bereits ein Widerruf vor. Bei Fragen zum Status kontaktieren Sie uns bitte.', 'widerrufsbutton-fuer-woocommerce' ) ),
+				array( 'message' => __( 'Für diese Bestellung liegt bereits ein Widerruf vor. Er ist bei uns erfasst – Sie müssen nichts weiter tun. Falls Sie noch auf eine Bestätigungs-E-Mail warten, prüfen Sie bitte auch Ihren Spam-Ordner.', 'widerrufsbutton-fuer-woocommerce' ) ),
 				409
 			);
 		}
@@ -185,6 +231,7 @@ class Ajax {
 			}
 
 			Repository::add_log( $id, 'kunde', 'eingegangen_unbestaetigt', '' );
+			$this->log_review_flags( $id, $unmatched, $excluded );
 
 			/**
 			 * Versand der Verifizierungs-E-Mail (Emails-Komponente).
@@ -216,6 +263,7 @@ class Ajax {
 		}
 
 		Repository::add_log( $id, 'kunde', 'eingegangen', '' );
+		$this->log_review_flags( $id, $unmatched, $excluded );
 		$this->finalize( $id, $order, $record );
 
 		wp_send_json_success(
@@ -224,6 +272,38 @@ class Ajax {
 				'message' => __( 'Ihr Widerruf ist eingegangen. Eine Eingangsbestätigung wird an Ihre E-Mail-Adresse gesendet.', 'widerrufsbutton-fuer-woocommerce' ),
 			)
 		);
+	}
+
+	/**
+	 * Vermerkt Punkte, die der Betreiber manuell prüfen muss.
+	 *
+	 * Beides sind bewusst keine Ablehnungsgründe: Der Widerruf ist zugegangen
+	 * und damit wirksam. Ob er greift, entscheidet der Betreiber – das Plugin
+	 * sorgt nur dafür, dass der Fall im Backend auffällt.
+	 *
+	 * @param int  $id        Datensatz-ID.
+	 * @param bool $unmatched Keine Bestellung zuordenbar.
+	 * @param bool $excluded  Artikel ist als ausgeschlossen konfiguriert.
+	 * @return void
+	 */
+	private function log_review_flags( $id, $unmatched, $excluded ) {
+		if ( $unmatched ) {
+			Repository::add_log(
+				$id,
+				'system',
+				'nicht_zugeordnet',
+				__( 'Zu den Angaben wurde keine Bestellung gefunden. Der Widerruf wurde dennoch erfasst und bedarf der manuellen Zuordnung.', 'widerrufsbutton-fuer-woocommerce' )
+			);
+		}
+
+		if ( $excluded ) {
+			Repository::add_log(
+				$id,
+				'system',
+				'ausschluss_geprueft',
+				__( 'Der Artikel ist in den Einstellungen als ausgeschlossen konfiguriert. Der Widerruf wurde dennoch erfasst – bitte prüfen Sie, ob der Ausschluss rechtlich trägt.', 'widerrufsbutton-fuer-woocommerce' )
+			);
+		}
 	}
 
 	/**

@@ -27,6 +27,7 @@ class Install {
 	public static function activate() {
 		self::create_tables();
 		self::seed_default_settings();
+		Maintenance::schedule();
 		update_option( self::OPT_DB_VERSION, WDBTN_DB_VERSION );
 	}
 
@@ -35,7 +36,10 @@ class Install {
 	 *
 	 * @return void
 	 */
-	public static function deactivate() {}
+	public static function deactivate() {
+		// Nur den Cron abmelden; Daten bleiben unangetastet.
+		Maintenance::unschedule();
+	}
 
 	/**
 	 * Führt bei abweichender DB-Version ein Upgrade durch.
@@ -46,8 +50,47 @@ class Install {
 		if ( get_option( self::OPT_DB_VERSION ) !== WDBTN_DB_VERSION ) {
 			self::create_tables();
 			self::seed_default_settings();
+			self::backfill_created_at_gmt();
+			// Auch hier einplanen: Bestehende Installationen durchlaufen die
+			// Aktivierung nicht erneut und bekaemen den Cron sonst nie.
+			Maintenance::schedule();
 			update_option( self::OPT_DB_VERSION, WDBTN_DB_VERSION );
 		}
+	}
+
+	/**
+	 * Füllt created_at_gmt für Datensätze aus DB-Version 1 nach.
+	 *
+	 * created_at wurde mit current_time( 'mysql' ) geschrieben, also in
+	 * Ortszeit ohne Offset. Ändert der Betreiber später die Zeitzone, wären
+	 * diese Zeitpunkte nicht mehr eindeutig – ausgerechnet bei dem Feld, das
+	 * den Zugang der Widerrufserklärung belegen soll. Die Umrechnung nutzt
+	 * daher den heute geltenden Offset; das ist die bestmögliche Rekonstruktion.
+	 *
+	 * @return void
+	 */
+	private static function backfill_created_at_gmt() {
+		global $wpdb;
+
+		$table = self::table_withdrawals();
+
+		// Spalte existiert erst nach dbDelta – ohne sie ist nichts zu tun.
+		$columns = $wpdb->get_col( "DESC {$table}", 0 ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( ! is_array( $columns ) || ! in_array( 'created_at_gmt', $columns, true ) ) {
+			return;
+		}
+
+		// created_at ist Ortszeit, UTC liegt um den Offset zurueck:
+		// Berlin im Sommer (+2) bedeutet 14:00 Ortszeit = 12:00 UTC.
+		$shift = -1 * (float) get_option( 'gmt_offset', 0 );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET created_at_gmt = DATE_ADD( created_at, INTERVAL %f HOUR ) WHERE created_at_gmt IS NULL", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$shift
+			)
+		);
 	}
 
 	/**
@@ -87,6 +130,7 @@ class Install {
 		$sql_withdrawals = "CREATE TABLE {$withdrawals} (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   created_at datetime NOT NULL,
+  created_at_gmt datetime DEFAULT NULL,
   order_id bigint(20) unsigned DEFAULT NULL,
   order_number varchar(100) NOT NULL DEFAULT '',
   product_id bigint(20) unsigned DEFAULT NULL,
@@ -155,7 +199,20 @@ class Install {
 			'rejection_email'     => 'no',
 			'admin_recipients'    => get_option( 'admin_email' ),
 			'withdrawal_days'        => 14,
+			// Konservativ voreingestellt: Das Referenzdatum entspricht selten
+			// exakt dem gesetzlichen Fristbeginn (bei Warenkauf laeuft die Frist
+			// erst ab Erhalt der Ware). Einen Tag zu lang anzubieten kostet
+			// Kulanz, einen Tag zu kurz verwehrt ein bestehendes Widerrufsrecht.
+			'grace_days'             => 1,
 			'date_basis'             => 'order_date',
+			// Widerrufe ohne zuordenbare Bestellung trotzdem annehmen: Der
+			// Widerruf wird mit Zugang wirksam (§ 130 BGB), nicht erst mit
+			// erfolgreicher Zuordnung. Verwerfen kann eine fristgerechte
+			// Erklaerung vernichten; annehmen kostet einen Datensatz.
+			'accept_unmatched'       => 'yes',
+			// 0 = keine automatische Loeschung. Bewusst konservativ: die
+			// Datensaetze dienen dem Zugangsnachweis.
+			'retention_days'         => 0,
 			'excluded_product_types' => array(),
 			'excluded_categories'    => array(),
 			'excluded_products'      => array(),

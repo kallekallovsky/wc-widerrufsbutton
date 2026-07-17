@@ -69,9 +69,19 @@ lösen also kein Release aus.
 
 - **Anzeige:** Button-Text, Position, Sichtbarkeit (sitewide / Produktseite / Kundenkonto / Footer-Link), Footer-Link-Text.
 - **Ablauf & Benachrichtigung:** Gast-Verifizierung, additive Bestellnotiz, Ablehnungs-Mail, Empfänger der Betreiber-Mail.
-- **Fristlogik:** Tage (Default 14) und Berechnungsbasis (Bestelldatum / Abschlussdatum) – **datumsbasiert**, nicht statusbasiert.
-- **Produkt-Ausschlüsse:** nach Typ, Kategorie oder einzelnen Produkt-IDs.
-- **Datenschutz:** optionales Löschen aller Daten bei Deinstallation.
+- **Fristlogik:** Tage (Default 14), Kulanzpuffer (Default 1) und Berechnungsbasis (Bestelldatum / Abschlussdatum) – **datumsbasiert**, nicht statusbasiert. Gerechnet wird in Kalendertagen: der Bestelltag zählt nicht mit, die Frist endet um 24:00 Uhr des letzten Tages (§§ 187, 188 BGB).
+- **Ohne passende Bestellung:** Widerrufe werden per Default auch dann angenommen, wenn sich keine Bestellung zuordnen lässt (Status *Nicht zugeordnet*).
+- **Produkt-Ausschlüsse:** nach Typ, Kategorie oder einzelnen Produkt-IDs – markieren zur Prüfung, blockieren nicht.
+- **Datenschutz:** Aufbewahrungsfrist (Default 0 = keine automatische Löschung), Anbindung an *Werkzeuge → Persönliche Daten*, optionales Löschen aller Daten bei Deinstallation.
+
+## Leitplanken
+
+Diese Entscheidungen sind bewusst so getroffen – bitte vor Änderungen den jeweiligen Grund lesen:
+
+- **Ein Widerruf wird nie hart blockiert.** Weder eine abgelaufene Frist noch ein Produkt-Ausschluss noch eine unbekannte Bestellnummer führen dazu, dass die Erklärung verworfen wird. Der Widerruf wird mit seinem **Zugang** wirksam (§ 130 BGB), nicht damit, dass der Shop ihn zuordnen oder akzeptieren will. Was strittig ist, wird erfasst, markiert und dem Betreiber zur Entscheidung vorgelegt.
+- **Die Eingangsbestätigung ist Pflicht**, nicht Kür (§ 356a BGB). Schlägt der Versand fehl, bleibt der Widerruf trotzdem dokumentiert.
+- **Fristen großzügig statt knapp.** Das Referenzdatum entspricht selten dem gesetzlichen Fristbeginn – beim Warenkauf läuft die Frist erst ab Erhalt der Ware. Zu lange anzubieten kostet Kulanz, zu kurz anzubieten verwehrt ein bestehendes Recht.
+- **Read-only gegenüber WooCommerce:** keine Statuswechsel, keine Rückerstattungen, nur additive Bestellnotizen.
 
 ## Funktionsweise des Widerrufs
 

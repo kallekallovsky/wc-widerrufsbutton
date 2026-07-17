@@ -43,6 +43,19 @@ $wdbtn_settings = isset( $settings ) && is_array( $settings ) ? $settings : arra
 					</select>
 					<p class="wdbtn-hint"><?php esc_html_e( 'Es werden nur Bestellungen angezeigt, für die ein Widerruf noch möglich ist.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 					<p class="wdbtn-hint wdbtn-no-orders" hidden><?php esc_html_e( 'Für Ihr Konto wurden keine widerrufbaren Bestellungen gefunden.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+					<?php
+					/*
+					 * Ausweg aus einer Sackgasse: Stand die gesuchte Bestellung nicht
+					 * im Auswahlfeld, gab es fuer eingeloggte Nutzer keinerlei
+					 * Moeglichkeit zu widerrufen – die Pflichtfeld-Meldung verwies auf
+					 * Felder, die fuer sie unsichtbar waren.
+					 */
+					?>
+					<p class="wdbtn-hint">
+						<button type="button" class="wdbtn-textlink wdbtn-show-guest">
+							<?php esc_html_e( 'Bestellung nicht dabei? Bestellnummer manuell eingeben', 'widerrufsbutton-fuer-woocommerce' ); ?>
+						</button>
+					</p>
 				</div>
 
 				<div class="wdbtn-guest-only" hidden>
@@ -61,17 +74,41 @@ $wdbtn_settings = isset( $settings ) && is_array( $settings ) ? $settings : arra
 					</div>
 				</div>
 
-				<?php /* Artikelbezug (Produktseiten-Vorbefüllung) */ ?>
+				<?php
+				/*
+				 * Artikelbezug (Produktseiten-Vorbefuellung).
+				 *
+				 * Der Bezug ist waehlbar: Von einer Produktseite aus wurde frueher
+				 * scope=item erzwungen, ohne jede Moeglichkeit, stattdessen die
+				 * gesamte Bestellung zu widerrufen. Wer auf der Produktseite steht,
+				 * meint aber nicht zwangslaeufig nur diesen Artikel.
+				 */
+				?>
 				<div class="wdbtn-field wdbtn-sku-field" hidden>
-					<label for="wdbtn-item-label"><?php esc_html_e( 'Betroffener Artikel', 'widerrufsbutton-fuer-woocommerce' ); ?></label>
+					<span class="wdbtn-legend"><?php esc_html_e( 'Worauf bezieht sich Ihr Widerruf?', 'widerrufsbutton-fuer-woocommerce' ); ?></span>
+					<?php
+					/*
+					 * Standardmaessig deaktiviert: Das hidden-Attribut am Container
+					 * blendet die Radios zwar aus, wuerde sie aber trotzdem mit
+					 * absenden. Ohne Artikelbezug bleiben sie deaktiviert, damit gar
+					 * kein scope im POST landet – der Server nimmt dann "order".
+					 */
+					?>
+					<label class="wdbtn-choice">
+						<input type="radio" name="scope" value="item" id="wdbtn-scope-item" checked disabled>
+						<span><?php esc_html_e( 'Nur dieser Artikel', 'widerrufsbutton-fuer-woocommerce' ); ?></span>
+					</label>
 					<?php /* Nur zur Anzeige: Produktname, ersatzweise die Artikelnummer. */ ?>
 					<input type="text" id="wdbtn-item-label" readonly>
+					<label class="wdbtn-choice">
+						<input type="radio" name="scope" value="order" id="wdbtn-scope-order" disabled>
+						<span><?php esc_html_e( 'Die gesamte Bestellung', 'widerrufsbutton-fuer-woocommerce' ); ?></span>
+					</label>
 					<?php /* Traegt die echte Artikelnummer; kann leer sein. */ ?>
 					<input type="hidden" name="sku" id="wdbtn-sku" value="">
-					<p class="wdbtn-hint"><?php esc_html_e( 'Sie widerrufen bezogen auf diesen Artikel. Der Artikel wird intern Ihrer Bestellung zugeordnet.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+					<p class="wdbtn-hint"><?php esc_html_e( 'Der Artikel wird intern Ihrer Bestellung zugeordnet.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 				</div>
 				<input type="hidden" name="product_id" id="wdbtn-product-id" value="0">
-				<input type="hidden" name="scope" id="wdbtn-scope" value="order">
 
 				<?php /* Optionaler Grund – KEIN Pflichtfeld (gesetzlich) */ ?>
 				<div class="wdbtn-field">

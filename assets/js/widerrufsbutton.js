@@ -56,20 +56,53 @@
 			guestBlock.hidden = false;
 		}
 
+		/*
+		 * Ausweg fuer eingeloggte Nutzer: Stand die gesuchte Bestellung nicht im
+		 * Auswahlfeld, gab es vorher keinerlei Moeglichkeit zu widerrufen - die
+		 * Pflichtfeld-Meldung verwies auf Felder, die unsichtbar waren.
+		 */
+		var showGuestLink = modal.querySelector( '.wdbtn-show-guest' );
+		if ( showGuestLink ) {
+			showGuestLink.addEventListener( 'click', function () {
+				if ( guestBlock ) { guestBlock.hidden = false; }
+				showGuestLink.hidden = true;
+				var nameField = document.getElementById( 'wdbtn-name' );
+				if ( nameField ) { nameField.focus(); }
+			} );
+		}
+
 		// Produktseiten-Vorbefüllung.
 		var prefill = cfg.prefillSku || {};
 		// Allein die Produkt-ID entscheidet ueber den Artikelbezug: eine
 		// Artikelnummer haben laengst nicht alle Produkte, eine ID immer.
 		if ( prefill.id ) {
+			enableItemScope( prefill.id, prefill.sku, prefill.label );
+		}
+
+		/**
+		 * Blendet die Bezugs-Auswahl ein und aktiviert sie.
+		 *
+		 * @param {number} pid   Produkt-ID.
+		 * @param {string} sku   Artikelnummer (kann leer sein).
+		 * @param {string} label Anzeigename.
+		 */
+		function enableItemScope( pid, sku, label ) {
 			if ( skuField ) { skuField.hidden = false; }
+
 			var labelInput = document.getElementById( 'wdbtn-item-label' );
 			var skuInput = document.getElementById( 'wdbtn-sku' );
 			var pidInput = document.getElementById( 'wdbtn-product-id' );
-			var scopeInput = document.getElementById( 'wdbtn-scope' );
-			if ( labelInput ) { labelInput.value = prefill.label || prefill.sku || ''; }
-			if ( skuInput ) { skuInput.value = prefill.sku || ''; }
-			if ( pidInput ) { pidInput.value = prefill.id; }
-			if ( scopeInput ) { scopeInput.value = 'item'; }
+			var itemRadio = document.getElementById( 'wdbtn-scope-item' );
+			var orderRadio = document.getElementById( 'wdbtn-scope-order' );
+
+			if ( labelInput ) { labelInput.value = label || sku || ''; }
+			if ( skuInput ) { skuInput.value = sku || ''; }
+			if ( pidInput ) { pidInput.value = pid; }
+
+			// Erst hier aktivieren: deaktivierte Felder landen nicht im FormData,
+			// ohne Artikelbezug soll gar kein scope mitgesendet werden.
+			if ( itemRadio ) { itemRadio.disabled = false; itemRadio.checked = true; }
+			if ( orderRadio ) { orderRadio.disabled = false; }
 		}
 
 		function loadOrders() {
@@ -177,18 +210,13 @@
 					applyDesiredOrder();
 				}
 			}
-			// Per-Trigger-Artikelbezug.
+			// Per-Trigger-Artikelbezug (z. B. Button im Kundenkonto).
 			if ( trigger ) {
 				var sku = trigger.getAttribute( 'data-sku' ) || '';
 				var pid = parseInt( trigger.getAttribute( 'data-product-id' ) || '0', 10 );
-				if ( sku || pid ) {
-					if ( skuField ) { skuField.hidden = false; }
-					var si = document.getElementById( 'wdbtn-sku' );
-					var pi = document.getElementById( 'wdbtn-product-id' );
-					var sc = document.getElementById( 'wdbtn-scope' );
-					if ( si && sku ) { si.value = sku; }
-					if ( pi && pid ) { pi.value = pid; }
-					if ( sc ) { sc.value = 'item'; }
+				// Ohne Produkt-ID gibt es keinen belastbaren Artikelbezug.
+				if ( pid ) {
+					enableItemScope( pid, sku, trigger.getAttribute( 'data-label' ) || '' );
 				}
 			}
 			clearMessages();
@@ -263,10 +291,26 @@
 			} else {
 				orderLabel = val( 'wdbtn-order-number' );
 			}
-			if ( val( 'wdbtn-name' ) ) { rows.push( [ 'Name', val( 'wdbtn-name' ) ] ); }
-			if ( orderLabel ) { rows.push( [ 'Bestellung', orderLabel ] ); }
-			if ( val( 'wdbtn-email' ) ) { rows.push( [ 'E-Mail', val( 'wdbtn-email' ) ] ); }
-			if ( val( 'wdbtn-sku' ) ) { rows.push( [ 'Artikel', val( 'wdbtn-sku' ) ] ); }
+			if ( val( 'wdbtn-name' ) ) { rows.push( [ t( 'labelName' ), val( 'wdbtn-name' ) ] ); }
+			if ( orderLabel ) { rows.push( [ t( 'labelOrder' ), orderLabel ] ); }
+			if ( val( 'wdbtn-email' ) ) { rows.push( [ t( 'labelEmail' ), val( 'wdbtn-email' ) ] ); }
+
+			/*
+			 * Den tatsaechlich gewaehlten Bezug zeigen. Vorher stand hier die
+			 * Artikelnummer - die ist bei vielen Produkten leer, und die
+			 * Auswahl "ganze Bestellung" tauchte ueberhaupt nicht auf. Der
+			 * zweite Schritt ist die verbindliche Bestaetigung: Was dort steht,
+			 * muss dem entsprechen, was abgesendet wird.
+			 */
+			var itemRadio = document.getElementById( 'wdbtn-scope-item' );
+			if ( itemRadio && ! itemRadio.disabled ) {
+				if ( itemRadio.checked ) {
+					var itemName = val( 'wdbtn-item-label' ) || val( 'wdbtn-sku' );
+					rows.push( [ t( 'labelScope' ), t( 'scopeItem' ) + ( itemName ? ': ' + itemName : '' ) ] );
+				} else {
+					rows.push( [ t( 'labelScope' ), t( 'scopeOrder' ) ] );
+				}
+			}
 
 			var dl = document.createElement( 'dl' );
 			rows.forEach( function ( r ) {

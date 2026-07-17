@@ -26,6 +26,23 @@ class Settings_Page {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_init', array( $this, 'register' ) );
+
+		/*
+		 * Ohne diesen Filter prüft options.php beim Speichern gegen den
+		 * Standard manage_options, während das Menü mit manage_woocommerce
+		 * sichtbar ist: Shop-Manager sahen das Formular, bekamen beim Speichern
+		 * aber "keine Berechtigung". Hier wird beides angeglichen.
+		 */
+		add_filter( 'option_page_capability_' . self::GROUP, array( $this, 'settings_capability' ) );
+	}
+
+	/**
+	 * Capability, die zum Speichern der Einstellungen berechtigt.
+	 *
+	 * @return string
+	 */
+	public function settings_capability() {
+		return self::CAP;
 	}
 
 	/**
@@ -78,7 +95,7 @@ class Settings_Page {
 		$pos                    = isset( $in['button_position'] ) ? sanitize_key( $in['button_position'] ) : '';
 		$out['button_position'] = in_array( $pos, array( 'bottom-right', 'bottom-left', 'bottom-center' ), true ) ? $pos : $d['button_position'];
 
-		foreach ( array( 'enable_sitewide', 'enable_product', 'enable_dashboard', 'enable_footer_link', 'add_order_note', 'guest_verification', 'rejection_email', 'delete_on_uninstall' ) as $cb ) {
+		foreach ( array( 'enable_sitewide', 'enable_product', 'enable_dashboard', 'enable_footer_link', 'add_order_note', 'guest_verification', 'rejection_email', 'accept_unmatched', 'delete_on_uninstall' ) as $cb ) {
 			$out[ $cb ] = ( isset( $in[ $cb ] ) && 'yes' === $in[ $cb ] ) ? 'yes' : 'no';
 		}
 
@@ -92,6 +109,12 @@ class Settings_Page {
 		$out['admin_recipients'] = $valid ? implode( ',', $valid ) : get_option( 'admin_email' );
 
 		$out['withdrawal_days'] = isset( $in['withdrawal_days'] ) ? max( 0, (int) $in['withdrawal_days'] ) : $d['withdrawal_days'];
+
+		// Nach oben gedeckelt, damit ein Tippfehler die Vorauswahl nicht
+		// unbrauchbar macht; negativ wäre eine verkürzte gesetzliche Frist.
+		$out['grace_days'] = isset( $in['grace_days'] ) ? min( 30, max( 0, (int) $in['grace_days'] ) ) : $d['grace_days'];
+
+		$out['retention_days'] = isset( $in['retention_days'] ) ? max( 0, (int) $in['retention_days'] ) : $d['retention_days'];
 
 		$basis              = isset( $in['date_basis'] ) ? sanitize_key( $in['date_basis'] ) : '';
 		$out['date_basis']  = in_array( $basis, array( 'order_date', 'completed_date' ), true ) ? $basis : $d['date_basis'];
@@ -208,12 +231,31 @@ class Settings_Page {
 				</table>
 
 				<h2><?php esc_html_e( 'Fristlogik', 'widerrufsbutton-fuer-woocommerce' ); ?></h2>
+
+				<div class="notice notice-info inline" style="margin: 12px 0;">
+					<p><strong><?php esc_html_e( 'Warum diese Voreinstellungen großzügig sind', 'widerrufsbutton-fuer-woocommerce' ); ?></strong></p>
+					<p>
+						<?php esc_html_e( 'Die Frist wird in Kalendertagen gerechnet: Der Tag der Bestellung zählt nicht mit, und die Frist endet um 24:00 Uhr des letzten Tages (§§ 187, 188 BGB).', 'widerrufsbutton-fuer-woocommerce' ); ?>
+						<?php esc_html_e( 'Sie steuert ausschließlich, welche Bestellungen zur Auswahl angeboten werden – ein Widerruf wird nie hart blockiert.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+					</p>
+					<p>
+						<?php esc_html_e( 'Beim Kauf von Waren beginnt die Frist erst mit Erhalt der Ware (§ 356 Abs. 2 Nr. 1 BGB), nicht mit der Bestellung. Da WooCommerce kein verlässliches Lieferdatum kennt, endet die hier berechnete Frist tendenziell zu früh. Der Kulanzpuffer gleicht das aus: Zu lange anzubieten kostet Kulanz, zu kurz anzubieten verwehrt ein bestehendes Widerrufsrecht.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+					</p>
+				</div>
+
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Widerrufsfrist (Tage)', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
 						<td>
 							<input type="number" min="0" name="<?php echo esc_attr( $name ); ?>[withdrawal_days]" value="<?php echo esc_attr( $s['withdrawal_days'] ); ?>">
-							<p class="description"><?php esc_html_e( '0 = keine Vorauswahl-Begrenzung. Das Plugin blockiert Widerrufe nicht hart.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Gesetzlich 14 Tage. 0 = keine Vorauswahl-Begrenzung. Das Plugin blockiert Widerrufe nicht hart.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Kulanzpuffer (Tage)', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="number" min="0" max="30" name="<?php echo esc_attr( $name ); ?>[grace_days]" value="<?php echo esc_attr( $s['grace_days'] ); ?>">
+							<p class="description"><?php esc_html_e( 'Zusätzliche Tage über die Frist hinaus, in denen die Bestellung weiterhin zur Auswahl steht. Empfohlen: mindestens 1. Auf 0 setzen Sie nur, wenn Sie die Berechnungsbasis am tatsächlichen Lieferdatum ausgerichtet haben.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -227,9 +269,40 @@ class Settings_Page {
 							<p class="description"><?php esc_html_e( 'Bewusst datumsbasiert – nicht anhand des WooCommerce-Status (Warenwirtschaft kann den Status umschreiben).', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
 						</td>
 					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Ohne passende Bestellung', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<?php
+							$this->checkbox(
+								$name,
+								'accept_unmatched',
+								$s,
+								__( 'Widerrufe auch dann annehmen, wenn keine Bestellung zugeordnet werden kann (empfohlen)', 'widerrufsbutton-fuer-woocommerce' )
+							);
+							?>
+							<p class="description">
+								<?php esc_html_e( 'Ein Widerruf wird mit seinem Zugang wirksam – nicht erst damit, dass Sie ihn zuordnen können. Ein Tippfehler in der Bestellnummer ändert daran nichts. Diese Erklärungen erscheinen in der Liste als „Nicht zugeordnet" und bedürfen Ihrer manuellen Klärung.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+								<?php esc_html_e( 'Schalten Sie die Option ab, werden solche Widerrufe verworfen und nirgends dokumentiert – auch dann, wenn sie fristgerecht erklärt wurden.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+							</p>
+						</td>
+					</tr>
 				</table>
 
 				<h2><?php esc_html_e( 'Produkt-Ausschlüsse', 'widerrufsbutton-fuer-woocommerce' ); ?></h2>
+
+				<div class="notice notice-warning inline" style="margin: 12px 0;">
+					<p><strong><?php esc_html_e( 'Bitte mit Bedacht einsetzen', 'widerrufsbutton-fuer-woocommerce' ); ?></strong></p>
+					<p>
+						<?php esc_html_e( 'Ausschlüsse blockieren den Widerruf nicht. Betroffene Erklärungen werden weiterhin angenommen, dokumentiert und für Sie markiert – die Entscheidung liegt bei Ihnen, nicht beim Plugin.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+					</p>
+					<p>
+						<?php esc_html_e( 'Grund: Ein Produkttyp sagt wenig über das Widerrufsrecht aus. „Virtuell" trifft in WooCommerce auch Dienstleistungen, die regelmäßig gerade nicht ausgenommen sind. Bei digitalen Inhalten erlischt das Recht nur, wenn die Kundschaft vorher ausdrücklich zugestimmt und ihre Kenntnis bestätigt hat (§ 356 Abs. 5 BGB) – das kann das Plugin nicht prüfen.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+					</p>
+					<p>
+						<?php esc_html_e( 'Ob ein Ausschluss im Einzelfall trägt, sollten Sie rechtlich prüfen lassen. Über die gesetzlich vorgeschriebene Widerrufsfunktion ein bestehendes Widerrufsrecht zu verweigern, ist riskanter als ein zu viel bearbeiteter Widerruf.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+					</p>
+				</div>
+
 				<table class="form-table" role="presentation">
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Nach Produkttyp', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
@@ -267,6 +340,24 @@ class Settings_Page {
 
 				<h2><?php esc_html_e( 'Datenschutz', 'widerrufsbutton-fuer-woocommerce' ); ?></h2>
 				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Aufbewahrung (Tage)', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<input type="number" min="0" name="<?php echo esc_attr( $name ); ?>[retention_days]" value="<?php echo esc_attr( $s['retention_days'] ); ?>">
+							<p class="description">
+								<?php esc_html_e( '0 = keine automatische Löschung (Voreinstellung). Die Datensätze belegen den Zugang der Widerrufserklärung und damit, dass Sie Ihre gesetzliche Bestätigungspflicht erfüllt haben – richten Sie eine Frist an Ihren Aufbewahrungspflichten aus.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+								<?php esc_html_e( 'Unabhängig davon werden unbestätigte Anfragen, deren Bestätigungslink abgelaufen ist, nach sieben Tagen automatisch entfernt.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Auskunft & Löschung', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
+						<td>
+							<p class="description">
+								<?php esc_html_e( 'Widerrufe sind an die WordPress-Werkzeuge unter Werkzeuge → Persönliche Daten angebunden. Bei einer Löschanfrage werden Name, E-Mail, Grund und IP-Kennung entfernt; der Vorgang selbst bleibt als Nachweis bestehen. Prüfen Sie, ob das für Ihren Shop so zutrifft.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+							</p>
+						</td>
+					</tr>
 					<tr>
 						<th scope="row"><?php esc_html_e( 'Deinstallation', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
 						<td><?php $this->checkbox( $name, 'delete_on_uninstall', $s, __( 'Beim Löschen des Plugins alle Daten (Tabellen + Einstellungen) entfernen', 'widerrufsbutton-fuer-woocommerce' ) ); ?></td>

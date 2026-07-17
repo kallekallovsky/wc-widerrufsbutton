@@ -22,7 +22,8 @@
  */
 .wdbtn-trigger,
 .wdbtn-btn,
-.wdbtn-close {
+.wdbtn-close,
+.wdbtn-textlink {
 	width: auto;
 	min-width: 0;
 	max-width: none;
@@ -144,6 +145,28 @@
 	box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
 	padding: 28px 28px 24px;
 	box-sizing: border-box;
+}
+
+/* Bezugs-Auswahl: ganzer Artikel vs. gesamte Bestellung */
+.wdbtn-legend {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+}
+
+.wdbtn-choice {
+	display: flex;
+	align-items: center;
+	gap: .5em;
+	margin: 4px 0;
+	font-weight: normal;
+	cursor: pointer;
+}
+
+.wdbtn-choice input[type="radio"] {
+	width: auto;
+	margin: 0;
+	flex: none;
 }
 
 .wdbtn-close {

@@ -107,7 +107,14 @@ class Emails {
 
 		// Fallback für die gesetzlich verpflichtende Eingangsbestätigung.
 		if ( ! $confirmed ) {
-			$confirmed = $this->wp_mail_fallback_customer( $record );
+			/*
+			 * Gespeicherten Datensatz bevorzugen: $record stammt aus dem
+			 * Absende-Pfad und kennt created_at noch gar nicht – das entsteht
+			 * erst beim Insert. Ohne diesen Umweg müsste die Mail den
+			 * Zugangszeitpunkt raten.
+			 */
+			$stored    = Repository::get( $id );
+			$confirmed = $this->wp_mail_fallback_customer( $stored ? $stored : $record );
 		}
 
 		if ( $confirmed ) {
@@ -172,7 +179,7 @@ class Emails {
 			return false;
 		}
 
-		$received = $this->format_now();
+		$received = self::format_received( $record );
 		$subject  = sprintf(
 			/* translators: %s: Shop-Name */
 			__( 'Ihr Widerruf ist bei %s eingegangen', 'widerrufsbutton-fuer-woocommerce' ),
@@ -197,11 +204,42 @@ class Emails {
 	}
 
 	/**
-	 * Aktuelles Datum + Uhrzeit gemäß Site-Einstellungen.
+	 * Formatiert den Zugangszeitpunkt eines Widerrufs gemäß Site-Einstellungen.
 	 *
+	 * Zentral, weil derselbe Wert in beiden E-Mail-Templates und im
+	 * wp_mail()-Fallback erscheint – und dort überall denselben Zeitpunkt
+	 * nennen muss.
+	 *
+	 * @param array $record Datensatz (erwartet created_at_gmt bzw. created_at).
 	 * @return string
 	 */
-	private function format_now() {
-		return date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
+	public static function format_received( $record ) {
+		$fmt = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+
+		/*
+		 * Der Zugangszeitpunkt der Erklärung, nicht der Sendezeitpunkt der
+		 * Mail. Vorher wurde hier schlicht "jetzt" formatiert – im Gast-Pfad
+		 * läuft diese Methode aber erst beim Klick auf den Bestätigungslink,
+		 * also bis zu 24 Stunden später. Die Eingangsbestätigung nannte damit
+		 * eine andere Uhrzeit als der Datensatz, der sie belegen soll.
+		 */
+		if ( ! empty( $record['created_at_gmt'] ) ) {
+			// Eindeutiger UTC-Zeitstempel: die verlässlichste Quelle.
+			$ts = strtotime( $record['created_at_gmt'] . ' UTC' );
+			if ( $ts ) {
+				return wp_date( $fmt, $ts ) . ' (' . wp_date( 'T', $ts ) . ')';
+			}
+		}
+
+		if ( ! empty( $record['created_at'] ) ) {
+			// Datensätze aus DB-Version 1: created_at ist Ortszeit ohne Offset.
+			// date_i18n() dreht genau diesen Altfall korrekt zurück.
+			$ts = strtotime( $record['created_at'] );
+			if ( $ts ) {
+				return date_i18n( $fmt, $ts );
+			}
+		}
+
+		return date_i18n( $fmt );
 	}
 }

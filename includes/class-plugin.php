@@ -62,6 +62,8 @@ final class Plugin {
 		new Frontend();
 		new Ajax();
 		new Emails();
+		new Maintenance();
+		new Privacy();
 
 		if ( is_admin() ) {
 			new Admin();

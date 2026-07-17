@@ -28,9 +28,8 @@ if ( $wdbtn_is_item ) {
 $wdbtn_scope_label = $wdbtn_is_item
 	? __( 'Artikelbezogener Widerruf', 'widerrufsbutton-fuer-woocommerce' )
 	: __( 'Widerruf der gesamten Bestellung', 'widerrufsbutton-fuer-woocommerce' );
-$wdbtn_received = ! empty( $wdbtn_w['created_at'] )
-	? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $wdbtn_w['created_at'] ) )
-	: '';
+// Siehe confirmation-customer.php: identische Quelle für den Zugangszeitpunkt.
+$wdbtn_received = \Widerrufsbutton\Emails::format_received( $wdbtn_w );
 $wdbtn_edit_link = ( $wdbtn_orderid && function_exists( 'admin_url' ) )
 	? admin_url( 'post.php?post=' . (int) $wdbtn_orderid . '&action=edit' )
 	: '';

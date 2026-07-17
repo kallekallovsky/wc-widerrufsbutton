@@ -27,6 +27,10 @@ class Repository {
 
 		$data = array(
 			'created_at'          => current_time( 'mysql' ),
+			// Zusaetzlich in UTC: created_at ist Ortszeit ohne Offset und waere
+			// nach einer Zeitzonenumstellung des Shops nicht mehr eindeutig –
+			// genau bei dem Feld, das den Zugang belegen soll.
+			'created_at_gmt'      => current_time( 'mysql', true ),
 			'order_id'            => ! empty( $d['order_id'] ) ? (int) $d['order_id'] : null,
 			'order_number'        => isset( $d['order_number'] ) ? (string) $d['order_number'] : '',
 			'product_id'          => ! empty( $d['product_id'] ) ? (int) $d['product_id'] : null,
@@ -44,7 +48,8 @@ class Repository {
 			'ip_hash'             => ( isset( $d['ip_hash'] ) && '' !== $d['ip_hash'] ) ? (string) $d['ip_hash'] : null,
 		);
 
-		$format = array( '%s', '%d', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' );
+		// Positionsgebunden: Reihenfolge muss exakt $data entsprechen.
+		$format = array( '%s', '%s', '%d', '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' );
 
 		$ok = $wpdb->insert( Install::table_withdrawals(), $data, $format );
 
@@ -232,7 +237,14 @@ class Repository {
 	/**
 	 * Prüft, ob bereits ein offener/bestätigter Widerruf existiert (Duplikat).
 	 *
-	 * Berücksichtigt nur verifizierte Einträge in nicht-abgelehnten Status.
+	 * Zählt verifizierte Einträge sowie unbestätigte, deren Token noch gültig
+	 * ist. Vorher zählten ausschließlich verifizierte Einträge: Jeder erneute
+	 * Versand legte damit eine weitere Zeile an und löste eine weitere E-Mail
+	 * an die angegebene Adresse aus – der Shop wurde so zum Verstärker gegen
+	 * die eigene Kundschaft, und die Tabelle wuchs unbegrenzt.
+	 *
+	 * Abgelaufene unbestätigte Einträge zählen bewusst nicht mit: Sonst könnte
+	 * eine einmalige Anfrage jeden weiteren Widerruf dauerhaft blockieren.
 	 *
 	 * @param int    $order_id   Bestell-ID.
 	 * @param string $scope      order|item.
@@ -250,12 +262,16 @@ class Repository {
 		$statuses = array( 'eingegangen', 'in_bearbeitung', 'bestaetigt' );
 		$ph       = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
 
+		// token_expires_at wird in UTC geschrieben – hier ebenfalls UTC vergleichen.
+		$now    = current_time( 'mysql', true );
+		$verify = "( verification_status = 'verified' OR ( verification_status = 'pending' AND token_expires_at > %s ) )";
+
 		if ( 'item' === $scope && $product_id ) {
-			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'item' AND product_id = %d AND verification_status = 'verified' AND status IN ($ph)";
-			$params = array_merge( array( (int) $order_id, (int) $product_id ), $statuses );
+			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'item' AND product_id = %d AND {$verify} AND status IN ($ph)";
+			$params = array_merge( array( (int) $order_id, (int) $product_id, $now ), $statuses );
 		} else {
-			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'order' AND verification_status = 'verified' AND status IN ($ph)";
-			$params = array_merge( array( (int) $order_id ), $statuses );
+			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'order' AND {$verify} AND status IN ($ph)";
+			$params = array_merge( array( (int) $order_id, $now ), $statuses );
 		}
 
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) ) > 0;
@@ -324,5 +340,75 @@ class Repository {
 		);
 
 		return $row ? $row : null;
+	}
+
+	/**
+	 * Liefert Widerrufe zu einer E-Mail-Adresse (für Auskunft/Löschung).
+	 *
+	 * @param string $email  E-Mail-Adresse.
+	 * @param int    $limit  Maximale Anzahl.
+	 * @param int    $offset Versatz.
+	 * @return array
+	 */
+	public static function find_by_email( $email, $limit = 50, $offset = 0 ) {
+		global $wpdb;
+
+		$email = sanitize_email( $email );
+		if ( ! $email ) {
+			return array();
+		}
+
+		$table = Install::table_withdrawals();
+
+		// Tabellenname stammt aus $wpdb->prefix (vertrauenswürdig).
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE email = %s ORDER BY id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$email,
+				(int) $limit,
+				(int) $offset
+			),
+			ARRAY_A
+		);
+
+		return is_array( $rows ) ? $rows : array();
+	}
+
+	/**
+	 * Entfernt die personenbezogenen Felder eines Widerrufs.
+	 *
+	 * Der Datensatz selbst bleibt bestehen: Er belegt den Zugang der
+	 * Widerrufserklärung und damit die Erfüllung einer gesetzlichen Pflicht.
+	 * Entfernt werden Name, E-Mail, Freitext-Grund und der IP-Hash.
+	 *
+	 * @param int $id Datensatz-ID.
+	 * @return bool
+	 */
+	public static function anonymize( $id ) {
+		global $wpdb;
+
+		$id = (int) $id;
+		if ( ! $id ) {
+			return false;
+		}
+
+		$ok = $wpdb->update(
+			Install::table_withdrawals(),
+			array(
+				'name'    => '',
+				'email'   => '',
+				'reason'  => null,
+				'ip_hash' => null,
+			),
+			array( 'id' => $id ),
+			array( '%s', '%s', '%s', '%s' ),
+			array( '%d' )
+		);
+
+		if ( false !== $ok ) {
+			self::add_log( $id, 'system', 'anonymisiert', __( 'Personenbezogene Felder auf Anforderung entfernt.', 'widerrufsbutton-fuer-woocommerce' ) );
+		}
+
+		return false !== $ok;
 	}
 }

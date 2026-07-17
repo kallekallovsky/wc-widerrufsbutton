@@ -4,7 +4,7 @@
  * Plugin URI:           https://github.com/kallekallovsky/wc-widerrufsbutton
  * Update URI:           https://github.com/kallekallovsky/wc-widerrufsbutton
  * Description:          Rechtskonforme digitale Widerrufsfunktion (§ 356a BGB / EU-Richtlinie 2023/2673) für WooCommerce: gut sichtbarer, loginfreier Widerrufsbutton mit zweistufiger Bestätigung und automatischer Eingangsbestätigung.
- * Version:              0.1.1
+ * Version:              0.1.2
  * Requires at least:    6.0
  * Requires PHP:         7.4
  * Author:               Kallovsky
@@ -22,8 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WDBTN_VERSION', '0.1.1' );
-define( 'WDBTN_DB_VERSION', '1' );
+define( 'WDBTN_VERSION', '0.1.2' );
+define( 'WDBTN_DB_VERSION', '2' );
 define( 'WDBTN_FILE', __FILE__ );
 define( 'WDBTN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WDBTN_URL', plugin_dir_url( __FILE__ ) );

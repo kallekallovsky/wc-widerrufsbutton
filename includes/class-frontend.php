@@ -104,6 +104,14 @@ class Frontend {
 				'sending'       => __( 'Wird gesendet …', 'widerrufsbutton-fuer-woocommerce' ),
 				'checkEmail'    => __( 'Bitte bestätigen Sie Ihre E-Mail', 'widerrufsbutton-fuer-woocommerce' ),
 				'ordersFailed'  => __( 'Ihre Bestellungen konnten nicht geladen werden. Bitte laden Sie die Seite neu oder geben Sie Ihre Bestellnummer manuell an.', 'widerrufsbutton-fuer-woocommerce' ),
+				// Beschriftungen der Zusammenfassung in Schritt 2. Vorher im
+				// JavaScript fest auf Deutsch verdrahtet und damit unübersetzbar.
+				'labelName'     => __( 'Name', 'widerrufsbutton-fuer-woocommerce' ),
+				'labelOrder'    => __( 'Bestellung', 'widerrufsbutton-fuer-woocommerce' ),
+				'labelEmail'    => __( 'E-Mail', 'widerrufsbutton-fuer-woocommerce' ),
+				'labelScope'    => __( 'Umfang', 'widerrufsbutton-fuer-woocommerce' ),
+				'scopeItem'     => __( 'Nur dieser Artikel', 'widerrufsbutton-fuer-woocommerce' ),
+				'scopeOrder'    => __( 'Die gesamte Bestellung', 'widerrufsbutton-fuer-woocommerce' ),
 			),
 		);
 
