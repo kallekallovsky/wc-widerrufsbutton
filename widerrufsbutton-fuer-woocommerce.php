@@ -2,6 +2,7 @@
 /**
  * Plugin Name:          Widerrufsbutton für WooCommerce
  * Plugin URI:           https://github.com/kallekallovsky/wc-widerrufsbutton
+ * Update URI:           https://github.com/kallekallovsky/wc-widerrufsbutton
  * Description:          Rechtskonforme digitale Widerrufsfunktion (§ 356a BGB / EU-Richtlinie 2023/2673) für WooCommerce: gut sichtbarer, loginfreier Widerrufsbutton mit zweistufiger Bestätigung und automatischer Eingangsbestätigung.
  * Version:              0.1.0
  * Requires at least:    6.0
@@ -52,6 +53,48 @@ spl_autoload_register(
 		}
 	}
 );
+
+/**
+ * Update-Prüfung gegen die GitHub-Releases des Projekts.
+ *
+ * Läuft unabhängig von WooCommerce, damit Updates auch dann noch
+ * ausgeliefert werden, wenn das Plugin sich mangels WooCommerce
+ * selbst deaktiviert hat.
+ *
+ * @return void
+ */
+function wdbtn_init_updater() {
+	$loader = WDBTN_PATH . 'lib/plugin-update-checker/plugin-update-checker.php';
+
+	if ( ! is_readable( $loader ) ) {
+		return;
+	}
+
+	require_once $loader;
+
+	if ( ! class_exists( '\YahnisElsts\PluginUpdateChecker\v5\PucFactory' ) ) {
+		return;
+	}
+
+	$checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+		'https://github.com/kallekallovsky/wc-widerrufsbutton/',
+		WDBTN_FILE,
+		'widerrufsbutton-fuer-woocommerce'
+	);
+
+	// Nur veröffentlichte Releases berücksichtigen, keine losen Tags.
+	$checker->getVcsApi()->enableReleaseAssets();
+
+	/**
+	 * Optionaler GitHub-Token, falls das Repository (wieder) privat wird.
+	 * In der wp-config.php setzen: define( 'WDBTN_GITHUB_TOKEN', '...' );
+	 */
+	if ( defined( 'WDBTN_GITHUB_TOKEN' ) && WDBTN_GITHUB_TOKEN ) {
+		$checker->setAuthentication( WDBTN_GITHUB_TOKEN );
+	}
+}
+
+wdbtn_init_updater();
 
 // Aktivierung / Deaktivierung.
 register_activation_hook( __FILE__, array( '\Widerrufsbutton\Install', 'activate' ) );

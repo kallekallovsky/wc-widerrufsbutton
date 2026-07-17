@@ -30,10 +30,40 @@ loginfreien Button mit zweistufiger Bestätigung und automatischer Eingangsbest�
 
 ## Installation
 
-1. Ordner `widerrufsbutton-fuer-woocommerce` nach `wp-content/plugins/` kopieren (oder als ZIP über *Plugins → Installieren* hochladen).
+1. Aktuelles ZIP unter [Releases](https://github.com/kallekallovsky/wc-widerrufsbutton/releases/latest) herunterladen und über *Plugins → Installieren → Plugin hochladen* einspielen.
 2. Plugin im WordPress-Backend aktivieren (WooCommerce muss aktiv sein). Bei Aktivierung werden die Tabellen `wp_wc_widerrufe` und `wp_wc_widerrufe_log` angelegt.
 3. Unter **WooCommerce → Widerruf-Einstellungen** konfigurieren.
 4. Betreff/Texte der E-Mails unter **WooCommerce → Einstellungen → E-Mails** anpassen.
+
+## Updates
+
+Das Plugin meldet neue Versionen selbst unter *Plugins → Aktualisieren* — wie ein Plugin aus dem
+WordPress.org-Verzeichnis, inklusive Auto-Update-Schalter. Grundlage sind die GitHub-Releases
+dieses Repositorys; die Prüfung übernimmt der mitgelieferte
+[Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) (`lib/`).
+
+Sollte das Repository wieder auf privat gestellt werden, ist zusätzlich ein GitHub-Token
+mit Lesezugriff nötig — in der `wp-config.php`:
+
+```php
+define( 'WDBTN_GITHUB_TOKEN', 'github_pat_...' );
+```
+
+Solange das Repository öffentlich ist, wird die Konstante nicht benötigt.
+
+## Release veröffentlichen
+
+Releases entstehen automatisch aus `main` — kein manuelles Taggen, kein ZIP-Upload:
+
+1. Version in `widerrufsbutton-fuer-woocommerce.php` erhöhen, an **beiden** Stellen:
+   im Plugin-Header (`Version:`) und in `define( 'WDBTN_VERSION', ... )`.
+   Der Workflow bricht ab, falls die beiden auseinanderlaufen.
+2. Commit und Push auf `main`.
+
+Der Workflow [`release.yml`](.github/workflows/release.yml) prüft dann die PHP-Syntax, baut ein
+ZIP ohne Entwicklungsdateien (`PLAN.md`, `.github/`, …) und legt Tag plus Release `v<Version>` an.
+Existiert für die Version bereits ein Release, passiert nichts — Pushes ohne Versionssprung
+lösen also kein Release aus.
 
 ## Konfiguration (Auszug)
 

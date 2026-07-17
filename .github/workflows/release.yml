@@ -1,0 +1,100 @@
+name: Release
+
+# Bei jedem Push auf main wird die Version im Plugin-Header geprueft.
+# Gibt es dafuer noch kein Release, wird automatisch eines gebaut.
+# Version unveraendert -> Workflow beendet sich ohne Release.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SLUG: widerrufsbutton-fuer-woocommerce
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Version aus dem Plugin-Header lesen
+        id: version
+        run: |
+          HEADER_VERSION=$(grep -m1 -E '^\s*\*\s*Version:' "${SLUG}.php" \
+            | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+          CONST_VERSION=$(grep -m1 -E "define\(\s*'WDBTN_VERSION'" "${SLUG}.php" \
+            | sed -E "s/.*'WDBTN_VERSION'[^']*'([^']+)'.*/\1/")
+
+          if [ -z "$HEADER_VERSION" ]; then
+            echo "::error::Keine Version im Plugin-Header gefunden."
+            exit 1
+          fi
+
+          # Header und WDBTN_VERSION duerfen nicht auseinanderlaufen.
+          if [ "$HEADER_VERSION" != "$CONST_VERSION" ]; then
+            echo "::error::Version im Header ($HEADER_VERSION) weicht von WDBTN_VERSION ($CONST_VERSION) ab."
+            exit 1
+          fi
+
+          echo "version=$HEADER_VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$HEADER_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Gefundene Version: $HEADER_VERSION"
+
+      - name: Pruefen, ob dieses Release schon existiert
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release ${{ steps.version.outputs.tag }} existiert bereits - kein neues Release."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Release ${{ steps.version.outputs.tag }} ist neu - wird gebaut."
+          fi
+
+      - name: PHP-Syntax aller Dateien pruefen
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          find . -path ./.git -prune -o -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Plugin-ZIP bauen
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          # Inhalt in einen Ordner mit dem Plugin-Slug spiegeln, damit
+          # WordPress das ZIP korrekt entpackt.
+          mkdir -p build/"${SLUG}"
+          rsync -a ./ build/"${SLUG}"/ \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'build' \
+            --exclude '.gitignore' \
+            --exclude '.distignore' \
+            --exclude '.DS_Store' \
+            --exclude '.gitkeep' \
+            --exclude 'PLAN.md' \
+            --exclude '*.zip'
+
+          cd build
+          zip -rq "${SLUG}.zip" "${SLUG}"
+
+          echo "=== Inhalt des ZIP (oberste Ebene) ==="
+          unzip -l "${SLUG}.zip" | head -20
+
+      - name: Release veroeffentlichen
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            "build/${SLUG}.zip" \
+            --title "${{ steps.version.outputs.tag }}" \
+            --generate-notes \
+            --target "${GITHUB_SHA}"
