@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Widerrufsbutton für WooCommerce 0.1.2\n"
+"Project-Id-Version: Widerrufsbutton für WooCommerce 0.1.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/widerrufsbutton-fuer-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-17T12:23:42+00:00\n"
+"POT-Creation-Date: 2026-07-18T10:36:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: widerrufsbutton-fuer-woocommerce\n"
@@ -34,203 +34,215 @@ msgstr ""
 msgid "Kallovsky"
 msgstr ""
 
-#: includes/class-admin.php:46
+#: includes/class-admin.php:56
+msgid "nicht erforderlich"
+msgstr ""
+
+#: includes/class-admin.php:57
+msgid "per E-Mail bestätigt"
+msgstr ""
+
+#: includes/class-admin.php:58
+msgid "E-Mail noch nicht bestätigt"
+msgstr ""
+
+#: includes/class-admin.php:66
 msgid "Eingegangen"
 msgstr ""
 
-#: includes/class-admin.php:49
+#: includes/class-admin.php:69
 msgid "Nicht zugeordnet"
 msgstr ""
 
-#: includes/class-admin.php:50
+#: includes/class-admin.php:70
 msgid "In Bearbeitung"
 msgstr ""
 
-#: includes/class-admin.php:51
+#: includes/class-admin.php:71
 msgid "Bestätigt"
 msgstr ""
 
-#: includes/class-admin.php:52
+#: includes/class-admin.php:72
 msgid "Abgelehnt"
 msgstr ""
 
-#: includes/class-admin.php:64
-#: includes/class-admin.php:65
-#: includes/class-admin.php:131
+#: includes/class-admin.php:84
+#: includes/class-admin.php:85
+#: includes/class-admin.php:151
 #: includes/class-privacy.php:39
 #: includes/class-privacy.php:53
 #: includes/class-privacy.php:75
 msgid "Widerrufe"
 msgstr ""
 
-#: includes/class-admin.php:92
+#: includes/class-admin.php:112
 #: includes/class-settings-page.php:204
 msgid "Sie haben keine Berechtigung für diese Seite."
 msgstr ""
 
-#: includes/class-admin.php:132
+#: includes/class-admin.php:152
 msgid "CSV-Export"
 msgstr ""
 
-#: includes/class-admin.php:140
+#: includes/class-admin.php:160
 msgid "Suche (Bestellnummer/E-Mail)"
 msgstr ""
 
-#: includes/class-admin.php:164
+#: includes/class-admin.php:184
 msgid "Offen (30 Tage)"
 msgstr ""
 
-#: includes/class-admin.php:168
+#: includes/class-admin.php:188
 msgid "Erledigt (30 Tage)"
 msgstr ""
 
-#: includes/class-admin.php:172
+#: includes/class-admin.php:192
 msgid "Gesamt (30 Tage)"
 msgstr ""
 
-#: includes/class-admin.php:188
+#: includes/class-admin.php:208
 msgid "Widerruf nicht gefunden."
 msgstr ""
 
-#: includes/class-admin.php:195
-#: includes/class-ajax.php:403
+#: includes/class-admin.php:215
+#: includes/class-ajax.php:396
 #: includes/class-list-table.php:147
-#: templates/emails/confirmation-customer.php:66
+#: templates/emails/confirmation-customer.php:73
 #: templates/emails/notification-admin.php:82
 msgid "Artikel"
 msgstr ""
 
-#: includes/class-admin.php:195
+#: includes/class-admin.php:215
 msgid "Gesamte Bestellung"
 msgstr ""
 
 #. translators: %d: Vorgangsnummer
-#: includes/class-admin.php:211
+#: includes/class-admin.php:231
 msgid "Widerruf #%d"
 msgstr ""
 
-#: includes/class-admin.php:214
+#: includes/class-admin.php:234
 msgid "← Zurück zur Liste"
 msgstr ""
 
-#: includes/class-admin.php:218
+#: includes/class-admin.php:238
 msgid "Status aktualisiert."
 msgstr ""
 
-#: includes/class-admin.php:224
+#: includes/class-admin.php:244
 #: includes/class-privacy.php:79
-#: templates/emails/confirmation-customer.php:79
+#: templates/emails/confirmation-customer.php:86
 #: templates/emails/notification-admin.php:95
 msgid "Eingegangen am"
 msgstr ""
 
-#: includes/class-admin.php:225
-#: includes/class-frontend.php:117
+#: includes/class-admin.php:245
+#: includes/class-frontend.php:116
 #: includes/class-list-table.php:47
-#: templates/emails/confirmation-customer.php:57
+#: templates/emails/confirmation-customer.php:64
 #: templates/emails/notification-admin.php:66
 msgid "Umfang"
 msgstr ""
 
-#: includes/class-admin.php:227
+#: includes/class-admin.php:247
 #: includes/class-list-table.php:44
 #: includes/class-privacy.php:83
-#: templates/emails/confirmation-customer.php:61
+#: templates/emails/confirmation-customer.php:68
 #: templates/emails/notification-admin.php:70
 #: templates/modal.php:67
 msgid "Bestellnummer"
 msgstr ""
 
-#: includes/class-admin.php:231
+#: includes/class-admin.php:251
 #: templates/emails/notification-admin.php:75
 msgid "Bestellung öffnen"
 msgstr ""
 
-#: includes/class-admin.php:236
+#: includes/class-admin.php:256
 msgid "Artikel (SKU)"
 msgstr ""
 
-#: includes/class-admin.php:238
+#: includes/class-admin.php:258
 #: includes/class-list-table.php:45
 msgid "Kunde"
 msgstr ""
 
-#: includes/class-admin.php:239
-#: includes/class-frontend.php:116
+#: includes/class-admin.php:259
+#: includes/class-frontend.php:115
 #: includes/class-list-table.php:46
 #: includes/class-privacy.php:91
-#: templates/emails/confirmation-customer.php:75
+#: templates/emails/confirmation-customer.php:82
 #: templates/emails/notification-admin.php:91
 msgid "E-Mail"
 msgstr ""
 
-#: includes/class-admin.php:240
+#: includes/class-admin.php:260
 #: templates/emails/notification-admin.php:100
 msgid "Grund (optional)"
 msgstr ""
 
-#: includes/class-admin.php:240
+#: includes/class-admin.php:260
 msgid "keine Angabe"
 msgstr ""
 
-#: includes/class-admin.php:241
+#: includes/class-admin.php:261
 msgid "Eingangsbestätigung"
 msgstr ""
 
-#: includes/class-admin.php:241
+#: includes/class-admin.php:261
 msgid "versendet"
 msgstr ""
 
-#: includes/class-admin.php:241
+#: includes/class-admin.php:261
 msgid "nicht versendet"
 msgstr ""
 
-#: includes/class-admin.php:242
-msgid "Verifizierung"
-msgstr ""
-
-#: includes/class-admin.php:246
-msgid "Status ändern"
-msgstr ""
-
-#: includes/class-admin.php:259
-msgid "Notiz / Ablehnungsgrund (optional)"
-msgstr ""
-
-#: includes/class-admin.php:261
-msgid "Bei Status „Abgelehnt\" wird diese Notiz – sofern aktiviert – dem Kunden per E-Mail mitgeteilt."
-msgstr ""
-
-#: includes/class-admin.php:263
-msgid "Status speichern"
+#: includes/class-admin.php:262
+msgid "E-Mail-Bestätigung"
 msgstr ""
 
 #: includes/class-admin.php:266
+msgid "Status ändern"
+msgstr ""
+
+#: includes/class-admin.php:279
+msgid "Notiz / Ablehnungsgrund (optional)"
+msgstr ""
+
+#: includes/class-admin.php:281
+msgid "Bei Status „Abgelehnt\" wird diese Notiz – sofern aktiviert – dem Kunden per E-Mail mitgeteilt."
+msgstr ""
+
+#: includes/class-admin.php:283
+msgid "Status speichern"
+msgstr ""
+
+#: includes/class-admin.php:286
 msgid "Verlauf"
 msgstr ""
 
-#: includes/class-admin.php:285
+#: includes/class-admin.php:305
 msgid "Keine Einträge."
 msgstr ""
 
-#: includes/class-admin.php:292
+#: includes/class-admin.php:312
 msgid "Zeitpunkt"
 msgstr ""
 
-#: includes/class-admin.php:293
+#: includes/class-admin.php:313
 msgid "Akteur"
 msgstr ""
 
-#: includes/class-admin.php:294
+#: includes/class-admin.php:314
 msgid "Aktion"
 msgstr ""
 
-#: includes/class-admin.php:295
+#: includes/class-admin.php:315
 msgid "Notiz"
 msgstr ""
 
-#: includes/class-admin.php:319
-#: includes/class-admin.php:354
+#: includes/class-admin.php:339
+#: includes/class-admin.php:374
 msgid "Keine Berechtigung."
 msgstr ""
 
@@ -260,54 +272,48 @@ msgstr ""
 msgid "Für diese Bestellung liegt bereits ein Widerruf vor. Er ist bei uns erfasst – Sie müssen nichts weiter tun. Falls Sie noch auf eine Bestätigungs-E-Mail warten, prüfen Sie bitte auch Ihren Spam-Ordner."
 msgstr ""
 
-#: includes/class-ajax.php:228
-#: includes/class-ajax.php:260
+#: includes/class-ajax.php:240
 msgid "Der Widerruf konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
 msgstr ""
 
-#: includes/class-ajax.php:249
-msgid "Fast geschafft: Wir haben Ihnen eine E-Mail mit einem Bestätigungslink gesendet. Bitte bestätigen Sie Ihren Widerruf darüber."
-msgstr ""
-
-#: includes/class-ajax.php:272
+#: includes/class-ajax.php:257
 msgid "Ihr Widerruf ist eingegangen. Eine Eingangsbestätigung wird an Ihre E-Mail-Adresse gesendet."
 msgstr ""
 
-#: includes/class-ajax.php:295
+#: includes/class-ajax.php:280
 msgid "Zu den Angaben wurde keine Bestellung gefunden. Der Widerruf wurde dennoch erfasst und bedarf der manuellen Zuordnung."
 msgstr ""
 
-#: includes/class-ajax.php:304
+#: includes/class-ajax.php:289
 msgid "Der Artikel ist in den Einstellungen als ausgeschlossen konfiguriert. Der Widerruf wurde dennoch erfasst – bitte prüfen Sie, ob der Ausschluss rechtlich trägt."
 msgstr ""
 
-#: includes/class-ajax.php:324
-msgid "Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet."
+#: includes/class-ajax.php:307
+msgid "Widerruf"
+msgstr ""
+
+#: includes/class-ajax.php:314
+msgid "Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet. Ihr Widerruf ist unabhängig davon bei uns eingegangen – Sie müssen nichts weiter tun."
 msgstr ""
 
 #: includes/class-ajax.php:325
-#: includes/class-ajax.php:336
-msgid "Widerruf bestätigen"
+msgid "Dieser Bestätigungslink ist abgelaufen. Ihr Widerruf ist aber bereits bei uns eingegangen und bestätigt – Sie müssen nichts weiter tun."
 msgstr ""
 
-#: includes/class-ajax.php:335
-msgid "Dieser Bestätigungslink ist abgelaufen. Bitte starten Sie den Widerruf erneut."
+#: includes/class-ajax.php:343
+msgid "Die Kundin/der Kunde hat die E-Mail-Adresse über den Bestätigungslink bestätigt."
 msgstr ""
 
-#: includes/class-ajax.php:354
-msgid "Vielen Dank. Ihr Widerruf wurde bestätigt. Eine Eingangsbestätigung wurde an Ihre E-Mail-Adresse gesendet."
-msgstr ""
-
-#: includes/class-ajax.php:355
-msgid "Widerruf bestätigt"
+#: includes/class-ajax.php:347
+msgid "Vielen Dank – Ihre E-Mail-Adresse ist bestätigt. Ihr Widerruf war bereits eingegangen; die Bestätigung hilft uns nur, ihn eindeutig zuzuordnen."
 msgstr ""
 
 #. translators: 1: Widerruf-ID, 2: Umfang
-#: includes/class-ajax.php:401
+#: includes/class-ajax.php:394
 msgid "Widerruf eingegangen (Vorgang #%1$d, Umfang: %2$s). Dokumentiert im Plugin „Widerrufsbutton\". Kein automatischer Statuswechsel."
 msgstr ""
 
-#: includes/class-ajax.php:403
+#: includes/class-ajax.php:396
 msgid "gesamte Bestellung"
 msgstr ""
 
@@ -344,81 +350,63 @@ msgid "Widerruf eingegangen"
 msgstr ""
 
 #. translators: %s: Shop-Name
-#: includes/class-emails.php:52
+#: includes/class-emails.php:72
 msgid "Information zu Ihrem Widerruf bei %s"
 msgstr ""
 
 #. translators: %s: Name
-#: includes/class-emails.php:57
-#: includes/class-emails.php:153
-#: includes/class-emails.php:190
-#: templates/emails/confirmation-customer.php:36
-#: templates/emails/confirmation-customer.php:52
+#: includes/class-emails.php:77
+#: includes/class-emails.php:167
+#: templates/emails/confirmation-customer.php:39
+#: templates/emails/confirmation-customer.php:59
 msgid "Hallo %s,"
 msgstr ""
 
 #. translators: %s: Bestellnummer
-#: includes/class-emails.php:61
+#: includes/class-emails.php:81
 msgid "zu Ihrem Widerruf für die Bestellung %s haben wir eine Rückmeldung für Sie."
 msgstr ""
 
-#: includes/class-emails.php:66
+#: includes/class-emails.php:86
 msgid "Anmerkung:"
 msgstr ""
 
-#: includes/class-emails.php:69
+#: includes/class-emails.php:89
 msgid "Bei Rückfragen können Sie sich jederzeit an uns wenden. Ihre gesetzlichen Rechte bleiben unberührt."
 msgstr ""
 
 #. translators: %s: Shop-Name
-#: includes/class-emails.php:148
-msgid "Bitte bestätigen Sie Ihren Widerruf bei %s"
-msgstr ""
-
-#. translators: %s: Bestellnummer
-#: includes/class-emails.php:157
-msgid "für Ihren Widerruf zur Bestellung %s ist noch ein Bestätigungsschritt nötig."
-msgstr ""
-
-#: includes/class-emails.php:160
-msgid "Bitte bestätigen Sie Ihren Widerruf über den folgenden Link:"
-msgstr ""
-
-#: includes/class-emails.php:164
-msgid "Der Link ist 24 Stunden gültig. Erst nach Bestätigung gilt Ihr Widerruf als eingegangen und Sie erhalten eine Eingangsbestätigung."
-msgstr ""
-
-#: includes/class-emails.php:166
-msgid "Falls Sie diesen Widerruf nicht ausgelöst haben, ignorieren Sie diese E-Mail bitte."
-msgstr ""
-
-#. translators: %s: Shop-Name
-#: includes/class-emails.php:185
+#: includes/class-emails.php:162
 msgid "Ihr Widerruf ist bei %s eingegangen"
 msgstr ""
 
-#: includes/class-emails.php:192
+#: includes/class-emails.php:169
 msgid "wir bestätigen den Eingang Ihres Widerrufs."
 msgstr ""
 
-#: includes/class-emails.php:194
+#: includes/class-emails.php:171
 msgid "Bestellnummer: %s"
 msgstr ""
 
-#: includes/class-emails.php:196
+#: includes/class-emails.php:173
 msgid "Artikel: %s"
 msgstr ""
 
-#: includes/class-emails.php:198
+#: includes/class-emails.php:175
 msgid "Name: %s"
 msgstr ""
 
-#: includes/class-emails.php:199
+#: includes/class-emails.php:176
 msgid "Eingegangen am: %s"
 msgstr ""
 
-#: includes/class-emails.php:201
+#: includes/class-emails.php:178
 msgid "Wir werden Ihren Widerruf zeitnah bearbeiten."
+msgstr ""
+
+#: includes/class-emails.php:183
+#: templates/emails/confirmation-customer.php:51
+msgid "Zur Bestätigung Ihrer E-Mail-Adresse können Sie optional den folgenden Link aufrufen. Ihr Widerruf ist bereits eingegangen – das ist nicht erforderlich:"
 msgstr ""
 
 #: includes/class-frontend.php:64
@@ -442,38 +430,38 @@ msgid "Wird gesendet …"
 msgstr ""
 
 #: includes/class-frontend.php:110
-msgid "Bitte bestätigen Sie Ihre E-Mail"
-msgstr ""
-
-#: includes/class-frontend.php:111
 msgid "Ihre Bestellungen konnten nicht geladen werden. Bitte laden Sie die Seite neu oder geben Sie Ihre Bestellnummer manuell an."
 msgstr ""
 
-#: includes/class-frontend.php:114
+#: includes/class-frontend.php:113
 #: includes/class-privacy.php:87
-#: templates/emails/confirmation-customer.php:71
+#: templates/emails/confirmation-customer.php:78
 #: templates/emails/notification-admin.php:87
 #: templates/modal.php:63
 msgid "Name"
 msgstr ""
 
-#: includes/class-frontend.php:115
+#: includes/class-frontend.php:114
 #: includes/class-list-table.php:148
 msgid "Bestellung"
 msgstr ""
 
-#: includes/class-frontend.php:118
+#: includes/class-frontend.php:117
 #: templates/modal.php:99
 msgid "Nur dieser Artikel"
 msgstr ""
 
-#: includes/class-frontend.php:119
+#: includes/class-frontend.php:118
 #: templates/modal.php:105
 msgid "Die gesamte Bestellung"
 msgstr ""
 
-#: includes/class-install.php:190
-#: includes/class-install.php:191
+#: includes/class-install.php:131
+msgid "Aus einer früheren Version übernommen: Dieser Widerruf war zugegangen, aber noch nicht per E-Mail bestätigt. Bitte prüfen, ob eine Eingangsbestätigung nachzuholen ist."
+msgstr ""
+
+#: includes/class-install.php:244
+#: includes/class-install.php:245
 #: templates/modal.php:28
 msgid "Vertrag widerrufen"
 msgstr ""
@@ -525,7 +513,7 @@ msgstr ""
 msgid "Widerrufe wurden anonymisiert. Der Vorgang selbst bleibt als Nachweis der gesetzlichen Eingangsbestätigung erhalten – bitte prüfen Sie, ob das für Ihren Shop so zutrifft."
 msgstr ""
 
-#: includes/class-repository.php:409
+#: includes/class-repository.php:411
 msgid "Personenbezogene Felder auf Anforderung entfernt."
 msgstr ""
 
@@ -692,154 +680,158 @@ msgid "Optionen"
 msgstr ""
 
 #: includes/class-settings-page.php:343
-msgid "Gast-Widerrufe per E-Mail-Link bestätigen lassen (Anti-Missbrauch)"
+msgid "Gästen einen E-Mail-Bestätigungslink anbieten (Vertrauens-Kennzeichen)"
 msgstr ""
 
-#: includes/class-settings-page.php:344
+#: includes/class-settings-page.php:346
+msgid "Die Eingangsbestätigung enthält dann einen optionalen Link, über den Gäste ihre E-Mail-Adresse bestätigen können. Der Klick ändert nichts an der Wirksamkeit – der Widerruf ist mit dem Absenden bereits eingegangen –, er markiert den Vorgang im Backend als „per E-Mail bestätigt\" und hilft Ihnen, echte von missbräuchlichen Eingaben zu unterscheiden."
+msgstr ""
+
+#: includes/class-settings-page.php:349
 msgid "Additive Bestellnotiz an die WooCommerce-Bestellung anhängen (kein Statuswechsel)"
 msgstr ""
 
-#: includes/class-settings-page.php:345
+#: includes/class-settings-page.php:350
 msgid "Bei Ablehnung eine Mitteilung an die Kund:in senden"
 msgstr ""
 
-#: includes/class-settings-page.php:350
+#: includes/class-settings-page.php:355
 msgid "Empfänger Betreiber-Mail"
 msgstr ""
 
-#: includes/class-settings-page.php:353
+#: includes/class-settings-page.php:358
 msgid "Mehrere Adressen mit Komma trennen. Betreff und Texte der E-Mails passen Sie unter WooCommerce → Einstellungen → E-Mails an."
 msgstr ""
 
-#: includes/class-settings-page.php:358
+#: includes/class-settings-page.php:363
 msgid "Fristlogik"
 msgstr ""
 
-#: includes/class-settings-page.php:361
+#: includes/class-settings-page.php:366
 msgid "Warum diese Voreinstellungen großzügig sind"
 msgstr ""
 
-#: includes/class-settings-page.php:363
+#: includes/class-settings-page.php:368
 msgid "Die Frist wird in Kalendertagen gerechnet: Der Tag der Bestellung zählt nicht mit, und die Frist endet um 24:00 Uhr des letzten Tages (§§ 187, 188 BGB)."
 msgstr ""
 
-#: includes/class-settings-page.php:364
+#: includes/class-settings-page.php:369
 msgid "Sie steuert ausschließlich, welche Bestellungen zur Auswahl angeboten werden – ein Widerruf wird nie hart blockiert."
 msgstr ""
 
-#: includes/class-settings-page.php:367
+#: includes/class-settings-page.php:372
 msgid "Beim Kauf von Waren beginnt die Frist erst mit Erhalt der Ware (§ 356 Abs. 2 Nr. 1 BGB), nicht mit der Bestellung. Da WooCommerce kein verlässliches Lieferdatum kennt, endet die hier berechnete Frist tendenziell zu früh. Der Kulanzpuffer gleicht das aus: Zu lange anzubieten kostet Kulanz, zu kurz anzubieten verwehrt ein bestehendes Widerrufsrecht."
 msgstr ""
 
-#: includes/class-settings-page.php:373
+#: includes/class-settings-page.php:378
 msgid "Widerrufsfrist (Tage)"
 msgstr ""
 
-#: includes/class-settings-page.php:376
+#: includes/class-settings-page.php:381
 msgid "Gesetzlich 14 Tage. 0 = keine Vorauswahl-Begrenzung. Das Plugin blockiert Widerrufe nicht hart."
 msgstr ""
 
-#: includes/class-settings-page.php:380
+#: includes/class-settings-page.php:385
 msgid "Kulanzpuffer (Tage)"
 msgstr ""
 
-#: includes/class-settings-page.php:383
+#: includes/class-settings-page.php:388
 msgid "Zusätzliche Tage über die Frist hinaus, in denen die Bestellung weiterhin zur Auswahl steht. Empfohlen: mindestens 1. Auf 0 setzen Sie nur, wenn Sie die Berechnungsbasis am tatsächlichen Lieferdatum ausgerichtet haben."
 msgstr ""
 
-#: includes/class-settings-page.php:387
+#: includes/class-settings-page.php:392
 msgid "Berechnungsbasis"
 msgstr ""
 
-#: includes/class-settings-page.php:394
+#: includes/class-settings-page.php:399
 msgid "Bewusst datumsbasiert – nicht anhand des WooCommerce-Status (Warenwirtschaft kann den Status umschreiben)."
 msgstr ""
 
-#: includes/class-settings-page.php:398
+#: includes/class-settings-page.php:403
 msgid "Ohne passende Bestellung"
 msgstr ""
 
-#: includes/class-settings-page.php:405
+#: includes/class-settings-page.php:410
 msgid "Widerrufe auch dann annehmen, wenn keine Bestellung zugeordnet werden kann (empfohlen)"
 msgstr ""
 
-#: includes/class-settings-page.php:409
+#: includes/class-settings-page.php:414
 msgid "Ein Widerruf wird mit seinem Zugang wirksam – nicht erst damit, dass Sie ihn zuordnen können. Ein Tippfehler in der Bestellnummer ändert daran nichts. Diese Erklärungen erscheinen in der Liste als „Nicht zugeordnet\" und bedürfen Ihrer manuellen Klärung."
 msgstr ""
 
-#: includes/class-settings-page.php:410
+#: includes/class-settings-page.php:415
 msgid "Schalten Sie die Option ab, werden solche Widerrufe verworfen und nirgends dokumentiert – auch dann, wenn sie fristgerecht erklärt wurden."
 msgstr ""
 
-#: includes/class-settings-page.php:416
+#: includes/class-settings-page.php:421
 msgid "Produkt-Ausschlüsse"
 msgstr ""
 
-#: includes/class-settings-page.php:419
+#: includes/class-settings-page.php:424
 msgid "Bitte mit Bedacht einsetzen"
 msgstr ""
 
-#: includes/class-settings-page.php:421
+#: includes/class-settings-page.php:426
 msgid "Ausschlüsse blockieren den Widerruf nicht. Betroffene Erklärungen werden weiterhin angenommen, dokumentiert und für Sie markiert – die Entscheidung liegt bei Ihnen, nicht beim Plugin."
 msgstr ""
 
-#: includes/class-settings-page.php:424
+#: includes/class-settings-page.php:429
 msgid "Grund: Ein Produkttyp sagt wenig über das Widerrufsrecht aus. „Virtuell\" trifft in WooCommerce auch Dienstleistungen, die regelmäßig gerade nicht ausgenommen sind. Bei digitalen Inhalten erlischt das Recht nur, wenn die Kundschaft vorher ausdrücklich zugestimmt und ihre Kenntnis bestätigt hat (§ 356 Abs. 5 BGB) – das kann das Plugin nicht prüfen."
 msgstr ""
 
-#: includes/class-settings-page.php:427
+#: includes/class-settings-page.php:432
 msgid "Ob ein Ausschluss im Einzelfall trägt, sollten Sie rechtlich prüfen lassen. Über die gesetzlich vorgeschriebene Widerrufsfunktion ein bestehendes Widerrufsrecht zu verweigern, ist riskanter als ein zu viel bearbeiteter Widerruf."
 msgstr ""
 
-#: includes/class-settings-page.php:433
+#: includes/class-settings-page.php:438
 msgid "Nach Produkttyp"
 msgstr ""
 
-#: includes/class-settings-page.php:444
+#: includes/class-settings-page.php:449
 msgid "Nach Kategorie"
 msgstr ""
 
-#: includes/class-settings-page.php:453
+#: includes/class-settings-page.php:458
 msgid "Keine Produktkategorien vorhanden."
 msgstr ""
 
-#: includes/class-settings-page.php:458
+#: includes/class-settings-page.php:463
 msgid "Einzelne Produkte (IDs)"
 msgstr ""
 
-#: includes/class-settings-page.php:461
+#: includes/class-settings-page.php:466
 msgid "Produkt-IDs mit Komma getrennt."
 msgstr ""
 
-#: includes/class-settings-page.php:466
+#: includes/class-settings-page.php:471
 msgid "Datenschutz"
 msgstr ""
 
-#: includes/class-settings-page.php:469
+#: includes/class-settings-page.php:474
 msgid "Aufbewahrung (Tage)"
 msgstr ""
 
-#: includes/class-settings-page.php:473
+#: includes/class-settings-page.php:478
 msgid "0 = keine automatische Löschung (Voreinstellung). Die Datensätze belegen den Zugang der Widerrufserklärung und damit, dass Sie Ihre gesetzliche Bestätigungspflicht erfüllt haben – richten Sie eine Frist an Ihren Aufbewahrungspflichten aus."
 msgstr ""
 
-#: includes/class-settings-page.php:474
+#: includes/class-settings-page.php:479
 msgid "Unabhängig davon werden unbestätigte Anfragen, deren Bestätigungslink abgelaufen ist, nach sieben Tagen automatisch entfernt."
 msgstr ""
 
-#: includes/class-settings-page.php:479
+#: includes/class-settings-page.php:484
 msgid "Auskunft & Löschung"
 msgstr ""
 
-#: includes/class-settings-page.php:482
+#: includes/class-settings-page.php:487
 msgid "Widerrufe sind an die WordPress-Werkzeuge unter Werkzeuge → Persönliche Daten angebunden. Bei einer Löschanfrage werden Name, E-Mail, Grund und IP-Kennung entfernt; der Vorgang selbst bleibt als Nachweis bestehen. Prüfen Sie, ob das für Ihren Shop so zutrifft."
 msgstr ""
 
-#: includes/class-settings-page.php:487
+#: includes/class-settings-page.php:492
 msgid "Deinstallation"
 msgstr ""
 
-#: includes/class-settings-page.php:488
+#: includes/class-settings-page.php:493
 msgid "Beim Löschen des Plugins alle Daten (Tabellen + Einstellungen) entfernen"
 msgstr ""
 
@@ -853,44 +845,52 @@ msgstr ""
 msgid "Widerruf der gesamten Bestellung"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:37
-#: templates/emails/confirmation-customer.php:53
+#: templates/emails/confirmation-customer.php:40
+#: templates/emails/confirmation-customer.php:60
 msgid "wir bestätigen den Eingang Ihres Widerrufs. Inhalt Ihrer Widerrufserklärung:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:38
+#: templates/emails/confirmation-customer.php:41
 #: templates/emails/notification-admin.php:41
 msgid "Umfang:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:39
+#: templates/emails/confirmation-customer.php:42
 #: templates/emails/notification-admin.php:42
 msgid "Bestellnummer:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:41
+#: templates/emails/confirmation-customer.php:44
 #: templates/emails/notification-admin.php:44
 msgid "Artikel:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:43
+#: templates/emails/confirmation-customer.php:46
 #: templates/emails/notification-admin.php:46
 msgid "Name:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:44
+#: templates/emails/confirmation-customer.php:47
 #: templates/emails/notification-admin.php:47
 msgid "E-Mail:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:45
+#: templates/emails/confirmation-customer.php:48
 #: templates/emails/notification-admin.php:48
 msgid "Eingegangen am:"
 msgstr ""
 
-#: templates/emails/confirmation-customer.php:46
-#: templates/emails/confirmation-customer.php:84
+#: templates/emails/confirmation-customer.php:49
+#: templates/emails/confirmation-customer.php:91
 msgid "Wir werden Ihren Widerruf zeitnah bearbeiten. Diese E-Mail dient als Eingangsbestätigung auf einem dauerhaften Datenträger."
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:95
+msgid "Optional: Sie können Ihre E-Mail-Adresse bestätigen, indem Sie auf den folgenden Link klicken. Ihr Widerruf ist bereits eingegangen – das ist nicht erforderlich."
+msgstr ""
+
+#: templates/emails/confirmation-customer.php:97
+msgid "E-Mail-Adresse bestätigen"
 msgstr ""
 
 #: templates/emails/notification-admin.php:40

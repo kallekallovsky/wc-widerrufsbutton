@@ -25,8 +25,28 @@ class Emails {
 	public function __construct() {
 		add_filter( 'woocommerce_email_classes', array( $this, 'register' ) );
 		add_action( 'wdbtn_withdrawal_created', array( $this, 'on_created' ), 10, 2 );
-		add_action( 'wdbtn_verification_requested', array( $this, 'on_verification_requested' ), 10, 3 );
 		add_action( 'wdbtn_status_changed', array( $this, 'on_status_changed' ), 10, 3 );
+	}
+
+	/**
+	 * Baut den optionalen Bestätigungslink für einen Datensatz.
+	 *
+	 * Liefert nur dann eine URL, wenn eine E-Mail-Bestätigung angefordert wurde
+	 * (Status "unconfirmed") und ein Token vorliegt. Der Link bestätigt nur die
+	 * E-Mail-Adresse – der Widerruf ist unabhängig davon bereits wirksam.
+	 *
+	 * @param array $record Datensatz.
+	 * @return string URL oder leerer String.
+	 */
+	public static function confirmation_link( $record ) {
+		if ( empty( $record['verification_token'] ) || 'unconfirmed' !== ( isset( $record['verification_status'] ) ? $record['verification_status'] : '' ) ) {
+			return '';
+		}
+
+		return add_query_arg(
+			array( 'wdbtn_verify' => rawurlencode( $record['verification_token'] ) ),
+			home_url( '/' )
+		);
 	}
 
 	/**
@@ -126,49 +146,6 @@ class Emails {
 	}
 
 	/**
-	 * Versendet die Verifizierungs-E-Mail an Gäste (Bestätigungslink).
-	 *
-	 * @param int    $id     Widerruf-ID.
-	 * @param array  $record Snapshot.
-	 * @param string $token  Verifizierungs-Token.
-	 * @return void
-	 */
-	public function on_verification_requested( $id, $record, $token ) {
-		if ( empty( $record['email'] ) || ! is_email( $record['email'] ) ) {
-			return;
-		}
-
-		$link = add_query_arg(
-			array( 'wdbtn_verify' => rawurlencode( $token ) ),
-			home_url( '/' )
-		);
-
-		$subject = sprintf(
-			/* translators: %s: Shop-Name */
-			__( 'Bitte bestätigen Sie Ihren Widerruf bei %s', 'widerrufsbutton-fuer-woocommerce' ),
-			wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
-		);
-
-		$lines   = array();
-		$lines[] = sprintf( __( 'Hallo %s,', 'widerrufsbutton-fuer-woocommerce' ), $record['name'] );
-		$lines[] = '';
-		$lines[] = sprintf(
-			/* translators: %s: Bestellnummer */
-			__( 'für Ihren Widerruf zur Bestellung %s ist noch ein Bestätigungsschritt nötig.', 'widerrufsbutton-fuer-woocommerce' ),
-			$record['order_number']
-		);
-		$lines[] = __( 'Bitte bestätigen Sie Ihren Widerruf über den folgenden Link:', 'widerrufsbutton-fuer-woocommerce' );
-		$lines[] = '';
-		$lines[] = esc_url_raw( $link );
-		$lines[] = '';
-		$lines[] = __( 'Der Link ist 24 Stunden gültig. Erst nach Bestätigung gilt Ihr Widerruf als eingegangen und Sie erhalten eine Eingangsbestätigung.', 'widerrufsbutton-fuer-woocommerce' );
-		$lines[] = '';
-		$lines[] = __( 'Falls Sie diesen Widerruf nicht ausgelöst haben, ignorieren Sie diese E-Mail bitte.', 'widerrufsbutton-fuer-woocommerce' );
-
-		wp_mail( $record['email'], $subject, implode( "\n", $lines ) );
-	}
-
-	/**
 	 * Einfacher wp_mail()-Fallback, falls die WC-Mail nicht greift.
 	 *
 	 * @param array $record Snapshot.
@@ -199,6 +176,13 @@ class Emails {
 		$lines[] = sprintf( __( 'Eingegangen am: %s', 'widerrufsbutton-fuer-woocommerce' ), $received );
 		$lines[] = '';
 		$lines[] = __( 'Wir werden Ihren Widerruf zeitnah bearbeiten.', 'widerrufsbutton-fuer-woocommerce' );
+
+		$link = self::confirmation_link( $record );
+		if ( '' !== $link ) {
+			$lines[] = '';
+			$lines[] = __( 'Zur Bestätigung Ihrer E-Mail-Adresse können Sie optional den folgenden Link aufrufen. Ihr Widerruf ist bereits eingegangen – das ist nicht erforderlich:', 'widerrufsbutton-fuer-woocommerce' );
+			$lines[] = esc_url_raw( $link );
+		}
 
 		return (bool) wp_mail( $record['email'], $subject, implode( "\n", $lines ) );
 	}

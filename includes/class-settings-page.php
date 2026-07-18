@@ -340,7 +340,12 @@ class Settings_Page {
 						<th scope="row"><?php esc_html_e( 'Optionen', 'widerrufsbutton-fuer-woocommerce' ); ?></th>
 						<td>
 							<?php
-							$this->checkbox( $name, 'guest_verification', $s, __( 'Gast-Widerrufe per E-Mail-Link bestätigen lassen (Anti-Missbrauch)', 'widerrufsbutton-fuer-woocommerce' ) );
+							$this->checkbox( $name, 'guest_verification', $s, __( 'Gästen einen E-Mail-Bestätigungslink anbieten (Vertrauens-Kennzeichen)', 'widerrufsbutton-fuer-woocommerce' ) );
+							?>
+							<p class="description" style="max-width: 46em;">
+								<?php esc_html_e( 'Die Eingangsbestätigung enthält dann einen optionalen Link, über den Gäste ihre E-Mail-Adresse bestätigen können. Der Klick ändert nichts an der Wirksamkeit – der Widerruf ist mit dem Absenden bereits eingegangen –, er markiert den Vorgang im Backend als „per E-Mail bestätigt" und hilft Ihnen, echte von missbräuchlichen Eingaben zu unterscheiden.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+							</p>
+							<?php
 							$this->checkbox( $name, 'add_order_note', $s, __( 'Additive Bestellnotiz an die WooCommerce-Bestellung anhängen (kein Statuswechsel)', 'widerrufsbutton-fuer-woocommerce' ) );
 							$this->checkbox( $name, 'rejection_email', $s, __( 'Bei Ablehnung eine Mitteilung an die Kund:in senden', 'widerrufsbutton-fuer-woocommerce' ) );
 							?>

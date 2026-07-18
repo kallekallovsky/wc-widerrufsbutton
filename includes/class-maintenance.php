@@ -58,40 +58,34 @@ final class Maintenance {
 	 * @return void
 	 */
 	public static function run() {
-		self::purge_expired_pending();
+		self::clear_expired_tokens();
 		self::purge_by_retention();
 	}
 
 	/**
-	 * Löscht unbestätigte Datensätze, deren Token abgelaufen ist.
+	 * Entfernt abgelaufene Bestätigungs-Token, ohne den Datensatz zu löschen.
 	 *
-	 * Diese Einträge stammen aus Anfragen, die nie bestätigt wurden – häufig
-	 * Tippfehler, teils Missbrauchsversuche. Sie enthalten Namen, E-Mail-
-	 * Adressen und Freitext von Personen, die möglicherweise nie Kundschaft
-	 * waren, und ließen sich vorher unbegrenzt anhäufen: Es gab keinerlei
-	 * Aufräumung. Bestätigte Widerrufe bleiben unberührt – sie dienen dem
-	 * Zugangsnachweis.
+	 * Seit der Entkopplung ist ein unbestätigter Widerruf ein vollständig
+	 * wirksamer Widerruf – er darf niemals automatisch gelöscht werden, sonst
+	 * ginge der Nachweis einer gültigen Erklärung verloren. Aufgeräumt wird nur
+	 * das tote Token, damit der Link nach Ablauf nicht mehr greift; der Eintrag
+	 * bleibt und behält seinen Status "unconfirmed".
 	 *
-	 * @return int Anzahl gelöschter Zeilen.
+	 * @return int Anzahl bereinigter Zeilen.
 	 */
-	public static function purge_expired_pending() {
+	public static function clear_expired_tokens() {
 		global $wpdb;
 
 		$table = Install::table_withdrawals();
-
-		// Kulanz-Puffer: erst deutlich nach Ablauf löschen, damit ein später
-		// geklickter Link nicht ins Leere läuft.
-		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( 7 * DAY_IN_SECONDS ) );
+		$now   = gmdate( 'Y-m-d H:i:s', time() );
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$ids = $wpdb->get_col(
+		return (int) $wpdb->query(
 			$wpdb->prepare(
-				"SELECT id FROM {$table} WHERE verification_status = 'pending' AND token_expires_at IS NOT NULL AND token_expires_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$cutoff
+				"UPDATE {$table} SET verification_token = NULL, token_expires_at = NULL WHERE verification_status = 'unconfirmed' AND token_expires_at IS NOT NULL AND token_expires_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$now
 			)
 		);
-
-		return self::delete_ids( $ids );
 	}
 
 	/**

@@ -41,6 +41,26 @@ class Admin {
 	 *
 	 * @return array
 	 */
+	/**
+	 * Bezeichnung des E-Mail-Bestätigungs-Kennzeichens.
+	 *
+	 * Hinweis: Das ist NICHT der Bearbeitungsstatus, sondern nur die Angabe, ob
+	 * ein Gast seine E-Mail-Adresse über den optionalen Link bestätigt hat. Auf
+	 * die Wirksamkeit des Widerrufs hat es keinen Einfluss.
+	 *
+	 * @param string $status Wert aus der Spalte verification_status.
+	 * @return string
+	 */
+	public static function verification_label( $status ) {
+		$map = array(
+			'verified'    => __( 'nicht erforderlich', 'widerrufsbutton-fuer-woocommerce' ),
+			'confirmed'   => __( 'per E-Mail bestätigt', 'widerrufsbutton-fuer-woocommerce' ),
+			'unconfirmed' => __( 'E-Mail noch nicht bestätigt', 'widerrufsbutton-fuer-woocommerce' ),
+		);
+
+		return isset( $map[ $status ] ) ? $map[ $status ] : (string) $status;
+	}
+
 	public static function statuses() {
 		return array(
 			'eingegangen'     => __( 'Eingegangen', 'widerrufsbutton-fuer-woocommerce' ),
@@ -239,7 +259,7 @@ class Admin {
 						<tr><th><?php esc_html_e( 'E-Mail', 'widerrufsbutton-fuer-woocommerce' ); ?></th><td><?php echo esc_html( $w['email'] ); ?></td></tr>
 						<tr><th><?php esc_html_e( 'Grund (optional)', 'widerrufsbutton-fuer-woocommerce' ); ?></th><td><?php echo $w['reason'] ? esc_html( $w['reason'] ) : '<em>' . esc_html__( 'keine Angabe', 'widerrufsbutton-fuer-woocommerce' ) . '</em>'; ?></td></tr>
 						<tr><th><?php esc_html_e( 'Eingangsbestätigung', 'widerrufsbutton-fuer-woocommerce' ); ?></th><td><?php echo $w['confirmation_sent'] ? esc_html__( 'versendet', 'widerrufsbutton-fuer-woocommerce' ) : esc_html__( 'nicht versendet', 'widerrufsbutton-fuer-woocommerce' ); ?></td></tr>
-						<tr><th><?php esc_html_e( 'Verifizierung', 'widerrufsbutton-fuer-woocommerce' ); ?></th><td><?php echo esc_html( $w['verification_status'] ); ?></td></tr>
+						<tr><th><?php esc_html_e( 'E-Mail-Bestätigung', 'widerrufsbutton-fuer-woocommerce' ); ?></th><td><?php echo esc_html( self::verification_label( $w['verification_status'] ) ); ?></td></tr>
 					</tbody>
 				</table>
 

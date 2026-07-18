@@ -28,6 +28,9 @@ $wdbtn_scope_label = $wdbtn_is_item
 // Zentral formatiert, damit Eingangsbestätigung, Betreiber-Mail und Fallback
 // denselben Zugangszeitpunkt nennen – inklusive Zeitzonenkürzel.
 $wdbtn_received = \Widerrufsbutton\Emails::format_received( $wdbtn_w );
+// Optionaler Bestätigungslink (nur bei Gästen mit aktivierter Verifizierung).
+// Bestätigt nur die E-Mail-Adresse; der Widerruf ist bereits eingegangen.
+$wdbtn_confirm_link = \Widerrufsbutton\Emails::confirmation_link( $wdbtn_w );
 
 if ( $plain_text ) {
 
@@ -44,6 +47,10 @@ if ( $plain_text ) {
 	echo esc_html__( 'E-Mail:', 'widerrufsbutton-fuer-woocommerce' ) . ' ' . $wdbtn_email . "\n";
 	echo esc_html__( 'Eingegangen am:', 'widerrufsbutton-fuer-woocommerce' ) . ' ' . $wdbtn_received . "\n\n";
 	echo esc_html__( 'Wir werden Ihren Widerruf zeitnah bearbeiten. Diese E-Mail dient als Eingangsbestätigung auf einem dauerhaften Datenträger.', 'widerrufsbutton-fuer-woocommerce' ) . "\n";
+	if ( '' !== $wdbtn_confirm_link ) {
+		echo "\n" . esc_html__( 'Zur Bestätigung Ihrer E-Mail-Adresse können Sie optional den folgenden Link aufrufen. Ihr Widerruf ist bereits eingegangen – das ist nicht erforderlich:', 'widerrufsbutton-fuer-woocommerce' ) . "\n";
+		echo esc_url_raw( $wdbtn_confirm_link ) . "\n";
+	}
 
 } else {
 
@@ -82,6 +89,14 @@ if ( $plain_text ) {
 	</table>
 
 	<p><?php esc_html_e( 'Wir werden Ihren Widerruf zeitnah bearbeiten. Diese E-Mail dient als Eingangsbestätigung auf einem dauerhaften Datenträger.', 'widerrufsbutton-fuer-woocommerce' ); ?></p>
+
+	<?php if ( '' !== $wdbtn_confirm_link ) : ?>
+	<p style="color:#666;font-size:13px;">
+		<?php esc_html_e( 'Optional: Sie können Ihre E-Mail-Adresse bestätigen, indem Sie auf den folgenden Link klicken. Ihr Widerruf ist bereits eingegangen – das ist nicht erforderlich.', 'widerrufsbutton-fuer-woocommerce' ); ?>
+		<br>
+		<a href="<?php echo esc_url( $wdbtn_confirm_link ); ?>"><?php esc_html_e( 'E-Mail-Adresse bestätigen', 'widerrufsbutton-fuer-woocommerce' ); ?></a>
+	</p>
+	<?php endif; ?>
 	<?php
 	do_action( 'woocommerce_email_footer', $email );
 

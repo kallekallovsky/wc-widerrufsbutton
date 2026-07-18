@@ -51,6 +51,7 @@ class Install {
 			self::create_tables();
 			self::seed_default_settings();
 			self::backfill_created_at_gmt();
+			self::migrate_pending_to_unconfirmed();
 			// Auch hier einplanen: Bestehende Installationen durchlaufen die
 			// Aktivierung nicht erneut und bekaemen den Cron sonst nie.
 			Maintenance::schedule();
@@ -91,6 +92,59 @@ class Install {
 				$shift
 			)
 		);
+	}
+
+	/**
+	 * Überführt Alt-Datensätze mit Status 'pending' nach 'unconfirmed'.
+	 *
+	 * Bis 0.1.2 galt ein Gast-Widerruf erst nach Klick auf den E-Mail-Link als
+	 * wirksam ('pending' bis dahin). Seit der Entkopplung ist er mit dem Zugang
+	 * wirksam; 'pending' gibt es nicht mehr. Diese Alt-Einträge stehen für
+	 * Widerrufe, die zugegangen waren, aber nie ihre gesetzlich vorgeschriebene
+	 * Eingangsbestätigung erhielten. Sie werden als 'unconfirmed' erhalten
+	 * (nie gelöscht) und mit einer Notiz zur manuellen Nachbearbeitung markiert –
+	 * ein automatischer Mailversand beim Update wäre zu überraschend.
+	 *
+	 * @return void
+	 */
+	private static function migrate_pending_to_unconfirmed() {
+		global $wpdb;
+
+		$table = self::table_withdrawals();
+
+		$columns = $wpdb->get_col( "DESC {$table}", 0 ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		if ( ! is_array( $columns ) || ! in_array( 'verification_status', $columns, true ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ids = $wpdb->get_col( "SELECT id FROM {$table} WHERE verification_status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		if ( empty( $ids ) ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "UPDATE {$table} SET verification_status = 'unconfirmed' WHERE verification_status = 'pending'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		$log  = self::table_log();
+		$note = __( 'Aus einer früheren Version übernommen: Dieser Widerruf war zugegangen, aber noch nicht per E-Mail bestätigt. Bitte prüfen, ob eine Eingangsbestätigung nachzuholen ist.', 'widerrufsbutton-fuer-woocommerce' );
+		$now  = current_time( 'mysql' );
+
+		foreach ( $ids as $wid ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->insert(
+				$log,
+				array(
+					'widerruf_id' => (int) $wid,
+					'created_at'  => $now,
+					'actor'       => 'system',
+					'action'      => 'migriert_unbestaetigt',
+					'note'        => $note,
+				),
+				array( '%d', '%s', '%s', '%s', '%s' )
+			);
+		}
 	}
 
 	/**

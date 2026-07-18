@@ -213,46 +213,26 @@ class Ajax {
 			);
 		}
 
-		// Gast-Verifizierung (Anti-Missbrauch), sofern aktiviert.
-		$needs_verification = ( ! $user_id ) && Settings::is_on( 'guest_verification' );
+		/*
+		 * Optionales Vertrauens-Kennzeichen fuer Gaeste. Der Widerruf ist mit
+		 * seinem Zugang wirksam (§ 130 BGB) und wird unten in jedem Fall sofort
+		 * erfasst und bestaetigt. Der Bestaetigungslink reist nur in der
+		 * Eingangsbestaetigung mit: Klickt der Gast, gilt seine E-Mail als
+		 * bestaetigt (Status "confirmed") - ein Hinweis fuer den Betreiber gegen
+		 * Missbrauch. Klickt er nicht, bleibt der Widerruf gueltig ("unconfirmed")
+		 * und wird niemals geloescht. Frueher war der Klick Voraussetzung fuer
+		 * die Wirksamkeit - das widersprach dem Zugangsprinzip.
+		 */
+		$wants_confirmation = ( ! $user_id ) && Settings::is_on( 'guest_verification' );
 
-		if ( $needs_verification ) {
-			$token                          = wp_generate_password( 40, false, false );
-			$record['verification_status']  = 'pending';
-			$record['verification_token']   = $token;
-			$record['token_expires_at']     = gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS );
-
-			$id = Repository::insert( $record );
-			if ( ! $id ) {
-				wp_send_json_error(
-					array( 'message' => __( 'Der Widerruf konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.', 'widerrufsbutton-fuer-woocommerce' ) ),
-					500
-				);
-			}
-
-			Repository::add_log( $id, 'kunde', 'eingegangen_unbestaetigt', '' );
-			$this->log_review_flags( $id, $unmatched, $excluded );
-
-			/**
-			 * Versand der Verifizierungs-E-Mail (Emails-Komponente).
-			 *
-			 * @param int    $id     Datensatz-ID.
-			 * @param array  $record Snapshot.
-			 * @param string $token  Verifizierungs-Token.
-			 */
-			do_action( 'wdbtn_verification_requested', $id, array_merge( $record, array( 'id' => $id ) ), $token );
-
-			wp_send_json_success(
-				array(
-					'id'      => $id,
-					'pending' => 1,
-					'message' => __( 'Fast geschafft: Wir haben Ihnen eine E-Mail mit einem Bestätigungslink gesendet. Bitte bestätigen Sie Ihren Widerruf darüber.', 'widerrufsbutton-fuer-woocommerce' ),
-				)
-			);
+		if ( $wants_confirmation ) {
+			$record['verification_status'] = 'unconfirmed';
+			$record['verification_token']  = wp_generate_password( 40, false, false );
+			// Grosszuegig gueltig - der Link blockiert nichts, er bestaetigt nur.
+			$record['token_expires_at']    = gmdate( 'Y-m-d H:i:s', time() + 14 * DAY_IN_SECONDS );
+		} else {
+			$record['verification_status'] = 'verified';
 		}
-
-		// Direktes Speichern (eingeloggt oder Verifizierung deaktiviert).
-		$record['verification_status'] = 'verified';
 
 		$id = Repository::insert( $record );
 		if ( ! $id ) {
@@ -264,7 +244,12 @@ class Ajax {
 
 		Repository::add_log( $id, 'kunde', 'eingegangen', '' );
 		$this->log_review_flags( $id, $unmatched, $excluded );
-		$this->finalize( $id, $order, $record );
+
+		// Immer sofort abschliessen: Der Zugang ist erfolgt, die
+		// Eingangsbestaetigung ist Pflicht. Der Bestaetigungslink (falls
+		// angefordert) liegt als verification_token im Datensatz und wird von
+		// der Eingangsbestaetigung eingebunden.
+		$this->finalize( $id, $order, array_merge( $record, array( 'id' => $id ) ) );
 
 		wp_send_json_success(
 			array(
@@ -319,10 +304,15 @@ class Ajax {
 		$token  = sanitize_text_field( wp_unslash( $_GET['wdbtn_verify'] ) );
 		$record = Repository::get_by_token( $token );
 
-		if ( ! $record || 'pending' !== $record['verification_status'] ) {
+		$title = __( 'Widerruf', 'widerrufsbutton-fuer-woocommerce' );
+
+		// Unbekannter oder bereits eingeloester Link. Bewusst beruhigend
+		// formuliert: Der Widerruf gilt so oder so als eingegangen, der Klick
+		// war nur eine zusaetzliche Bestaetigung.
+		if ( ! $record || 'unconfirmed' !== $record['verification_status'] ) {
 			wp_die(
-				esc_html__( 'Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet.', 'widerrufsbutton-fuer-woocommerce' ),
-				esc_html__( 'Widerruf bestätigen', 'widerrufsbutton-fuer-woocommerce' ),
+				esc_html__( 'Dieser Bestätigungslink ist ungültig oder wurde bereits verwendet. Ihr Widerruf ist unabhängig davon bei uns eingegangen – Sie müssen nichts weiter tun.', 'widerrufsbutton-fuer-woocommerce' ),
+				esc_html( $title ),
 				array(
 					'response'  => 200,
 					'back_link' => true,
@@ -332,8 +322,8 @@ class Ajax {
 
 		if ( ! empty( $record['token_expires_at'] ) && strtotime( $record['token_expires_at'] . ' UTC' ) < time() ) {
 			wp_die(
-				esc_html__( 'Dieser Bestätigungslink ist abgelaufen. Bitte starten Sie den Widerruf erneut.', 'widerrufsbutton-fuer-woocommerce' ),
-				esc_html__( 'Widerruf bestätigen', 'widerrufsbutton-fuer-woocommerce' ),
+				esc_html__( 'Dieser Bestätigungslink ist abgelaufen. Ihr Widerruf ist aber bereits bei uns eingegangen und bestätigt – Sie müssen nichts weiter tun.', 'widerrufsbutton-fuer-woocommerce' ),
+				esc_html( $title ),
 				array(
 					'response'  => 200,
 					'back_link' => true,
@@ -341,18 +331,21 @@ class Ajax {
 			);
 		}
 
+		// Nur das Vertrauens-Kennzeichen setzen. Der Widerruf war mit dem
+		// Absenden bereits erfasst und bestaetigt – kein erneuter Abschluss,
+		// keine zweite Eingangsbestaetigung.
 		$id = (int) $record['id'];
-		Repository::mark_verified( $id );
-		Repository::add_log( $id, 'kunde', 'bestaetigt', '' );
-
-		$full  = Repository::get( $id );
-		$order = ( $full && ! empty( $full['order_id'] ) && function_exists( 'wc_get_order' ) ) ? wc_get_order( (int) $full['order_id'] ) : null;
-
-		$this->finalize( $id, $order ? $order : null, $full ? $full : $record );
+		Repository::mark_confirmed( $id );
+		Repository::add_log(
+			$id,
+			'kunde',
+			'email_bestaetigt',
+			__( 'Die Kundin/der Kunde hat die E-Mail-Adresse über den Bestätigungslink bestätigt.', 'widerrufsbutton-fuer-woocommerce' )
+		);
 
 		wp_die(
-			esc_html__( 'Vielen Dank. Ihr Widerruf wurde bestätigt. Eine Eingangsbestätigung wurde an Ihre E-Mail-Adresse gesendet.', 'widerrufsbutton-fuer-woocommerce' ),
-			esc_html__( 'Widerruf bestätigt', 'widerrufsbutton-fuer-woocommerce' ),
+			esc_html__( 'Vielen Dank – Ihre E-Mail-Adresse ist bestätigt. Ihr Widerruf war bereits eingegangen; die Bestätigung hilft uns nur, ihn eindeutig zuzuordnen.', 'widerrufsbutton-fuer-woocommerce' ),
+			esc_html( $title ),
 			array(
 				'response'  => 200,
 				'back_link' => true,

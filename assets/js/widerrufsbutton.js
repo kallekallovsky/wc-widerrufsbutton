@@ -349,10 +349,6 @@
 					if ( doneText && json.data && json.data.message ) {
 						doneText.textContent = json.data.message;
 					}
-					var doneTitle = document.getElementById( 'wdbtn-done-title' );
-					if ( doneTitle && json.data && json.data.pending ) {
-						doneTitle.textContent = ( i18n.checkEmail || doneTitle.textContent );
-					}
 					showStep( 'done' );
 					focusFirst();
 				} else {

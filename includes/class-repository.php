@@ -237,14 +237,11 @@ class Repository {
 	/**
 	 * Prüft, ob bereits ein offener/bestätigter Widerruf existiert (Duplikat).
 	 *
-	 * Zählt verifizierte Einträge sowie unbestätigte, deren Token noch gültig
-	 * ist. Vorher zählten ausschließlich verifizierte Einträge: Jeder erneute
-	 * Versand legte damit eine weitere Zeile an und löste eine weitere E-Mail
-	 * an die angegebene Adresse aus – der Shop wurde so zum Verstärker gegen
-	 * die eigene Kundschaft, und die Tabelle wuchs unbegrenzt.
-	 *
-	 * Abgelaufene unbestätigte Einträge zählen bewusst nicht mit: Sonst könnte
-	 * eine einmalige Anfrage jeden weiteren Widerruf dauerhaft blockieren.
+	 * Zählt jeden Eintrag in einem aktiven Status, unabhängig vom
+	 * Verifizierungs-Kennzeichen: Seit der Entkopplung ist jeder Widerruf mit
+	 * dem Absenden wirksam, auch der noch nicht per E-Mail bestätigte. So legt
+	 * ein erneuter Versand keine zweite Zeile an und loest keine weitere Mail
+	 * an dieselbe Adresse aus.
 	 *
 	 * @param int    $order_id   Bestell-ID.
 	 * @param string $scope      order|item.
@@ -262,16 +259,12 @@ class Repository {
 		$statuses = array( 'eingegangen', 'in_bearbeitung', 'bestaetigt' );
 		$ph       = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
 
-		// token_expires_at wird in UTC geschrieben – hier ebenfalls UTC vergleichen.
-		$now    = current_time( 'mysql', true );
-		$verify = "( verification_status = 'verified' OR ( verification_status = 'pending' AND token_expires_at > %s ) )";
-
 		if ( 'item' === $scope && $product_id ) {
-			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'item' AND product_id = %d AND {$verify} AND status IN ($ph)";
-			$params = array_merge( array( (int) $order_id, (int) $product_id, $now ), $statuses );
+			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'item' AND product_id = %d AND status IN ($ph)";
+			$params = array_merge( array( (int) $order_id, (int) $product_id ), $statuses );
 		} else {
-			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'order' AND {$verify} AND status IN ($ph)";
-			$params = array_merge( array( (int) $order_id, $now ), $statuses );
+			$sql    = "SELECT COUNT(*) FROM {$table} WHERE order_id = %d AND scope = 'order' AND status IN ($ph)";
+			$params = array_merge( array( (int) $order_id ), $statuses );
 		}
 
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) ) > 0;
@@ -306,13 +299,22 @@ class Repository {
 	 * @param int $id Datensatz-ID.
 	 * @return void
 	 */
-	public static function mark_verified( $id ) {
+	/**
+	 * Markiert einen Widerruf als per E-Mail bestätigt (Vertrauens-Kennzeichen).
+	 *
+	 * Aendert nicht die Gueltigkeit des Widerrufs - der ist mit dem Zugang
+	 * bereits wirksam. Das Token wird geleert, damit der Link nur einmal wirkt.
+	 *
+	 * @param int $id Datensatz-ID.
+	 * @return void
+	 */
+	public static function mark_confirmed( $id ) {
 		global $wpdb;
 
 		$wpdb->update(
 			Install::table_withdrawals(),
 			array(
-				'verification_status' => 'verified',
+				'verification_status' => 'confirmed',
 				'verification_token'  => null,
 				'token_expires_at'    => null,
 			),

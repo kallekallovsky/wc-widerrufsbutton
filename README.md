@@ -13,7 +13,7 @@ loginfreien Button mit zweistufiger Bestätigung und automatischer Eingangsbest�
 - **Barrierearmes Modal** mit Background-Blur, Fokus-Trap, ESC-Schließen, `role="dialog"`/`aria-modal`.
 - **Zweistufiger Ablauf:** Identifikation → gesonderte verbindliche Bestätigung. Kein Pflicht-Grund (optionales Freitextfeld).
 - **Eingeloggt:** bestellbezogene Auswahl der eigenen, noch widerrufbaren Bestellungen.
-- **Gast:** Abgleich über E-Mail + Bestellnummer mit flexiblem Nummern-Matching; optionale E-Mail-Verifizierung (Bestätigungslink).
+- **Gast:** Abgleich über E-Mail + Bestellnummer mit flexiblem Nummern-Matching; optionaler E-Mail-Bestätigungslink als Vertrauens-Kennzeichen (blockiert den Widerruf nicht).
 - **Artikel- und Bestellbezug:** ganze Bestellung oder einzelne Position; auf Produktseiten wird die Artikelnummer vorausgefüllt.
 - **Produktseiten-/Kundenkonto-Integration:** Button im Konto je Bestellung mit Vorauswahl.
 - **Automatische Eingangsbestätigung** (dauerhafter Datenträger) inkl. Datum + Uhrzeit, plus Betreiber-Benachrichtigung – über die WooCommerce-Mailer-Infrastruktur, Templates überschreibbar.
@@ -89,8 +89,8 @@ Diese Entscheidungen sind bewusst so getroffen – bitte vor Änderungen den jew
 1. Verbraucher:in öffnet das Modal über den Button.
 2. **Schritt 1 – Identifikation:** eingeloggt per Bestellauswahl, als Gast per Name, Bestellnummer und E-Mail.
 3. **Schritt 2 – Bestätigung:** gesonderte Schaltfläche „Widerruf verbindlich bestätigen".
-4. Bei Gästen mit aktivierter Verifizierung wird zunächst ein Bestätigungslink per E-Mail versendet; erst nach Klick gilt der Widerruf als eingegangen.
-5. Der Widerruf wird mit Snapshot gespeichert, eine Eingangsbestätigung an die Verbraucher:in sowie eine Benachrichtigung an den Betreiber versendet.
+4. Der Widerruf gilt mit dem Absenden als eingegangen (§ 130 BGB): Er wird mit Snapshot gespeichert, die Eingangsbestätigung geht sofort an die Verbraucher:in, eine Benachrichtigung an den Betreiber.
+5. Ist der E-Mail-Bestätigungslink für Gäste aktiviert, enthält die Eingangsbestätigung einen optionalen Link. Ein Klick markiert den Vorgang als „per E-Mail bestätigt" (Vertrauens-Kennzeichen gegen Missbrauch) – er ist **keine** Voraussetzung für die Wirksamkeit und wird nie erzwungen.
 
 ## Kompatibilität mit Warenwirtschaft (Billbee & Co.)
 
@@ -106,9 +106,9 @@ Eine spätere **Billbee-API-Anbindung (Phase 2)** ist über die gekapselte Schni
 
 ## Hooks (Auswahl)
 
-- `wdbtn_withdrawal_created` ( int $id, array $record ) — nach finaler Erfassung.
-- `wdbtn_verification_requested` ( int $id, array $record, string $token ) — Gast-Verifizierung.
+- `wdbtn_withdrawal_created` ( int $id, array $record ) — nach der Erfassung (löst die Eingangsbestätigung aus).
 - `wdbtn_status_changed` ( int $id, string $status, string $note ) — Statuswechsel im Backend.
+- `wdbtn_hidden_order_statuses` (Filter) — WooCommerce-Status, die nicht zur Auswahl angeboten werden.
 - `wdbtn_notifier` (Filter) — eigene `Notifier`-Implementierung einhängen (Phase 2).
 - `wdbtn_rate_limit_max` / `wdbtn_rate_limit_window` (Filter) — Rate-Limit anpassen.
 
